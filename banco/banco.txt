@@ -64,3 +64,13 @@ CREATE TABLE usuario (
   cidade VARCHAR(25) NOT NULL,
   PRIMARY KEY (idUsuario)
 );
+
+
+ALTER TABLE imovel
+MODIFY COLUMN valorAluguel DECIMAL(10,2) NOT NULL;
+
+ALTER TABLE contrato
+MODIFY COLUMN valorParcela DECIMAL(10,2) NOT NULL;
+
+ALTER TABLE aluguel
+MODIFY COLUMN valorAluguel DECIMAL(10,2) NOT NULL;
