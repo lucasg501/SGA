@@ -1,0 +1,66 @@
+CREATE SCHEMA IF NOT EXISTS aluguel;
+USE aluguel;
+
+CREATE TABLE locador (
+  idLocador INT NOT NULL AUTO_INCREMENT,
+  nomeLocador VARCHAR(245) NOT NULL,
+  cpfLocador VARCHAR(15) NOT NULL,
+  PRIMARY KEY (idLocador)
+);
+
+CREATE TABLE locatario (
+  idLocatario INT NOT NULL AUTO_INCREMENT,
+  nomeLocatario VARCHAR(245) NOT NULL,
+  cpfLocatario VARCHAR(15) NOT NULL,
+  PRIMARY KEY (idLocatario)
+);
+
+CREATE TABLE imovel (
+  idImovel INT NOT NULL AUTO_INCREMENT,
+  refImovel VARCHAR(50) NOT NULL,
+  valorAluguel DOUBLE(10,2) NOT NULL,
+  idLocatario INT DEFAULT NULL,
+  idLocador INT DEFAULT NULL,
+  PRIMARY KEY (idImovel),
+  KEY idLocatario (idLocatario),
+  KEY idLocador (idLocador),
+  CONSTRAINT imovel_ibfk_1 FOREIGN KEY (idLocatario) REFERENCES locatario (idLocatario),
+  CONSTRAINT imovel_ibfk_2 FOREIGN KEY (idLocador) REFERENCES locador (idLocador)
+);
+
+CREATE TABLE contrato (
+  idContrato INT NOT NULL AUTO_INCREMENT,
+  idImovel INT DEFAULT NULL,
+  idLocatario INT DEFAULT NULL,
+  idLocador INT DEFAULT NULL,
+  qtdParcelas INT NOT NULL,
+  valorParcela DOUBLE(10,2) NOT NULL,
+  PRIMARY KEY (idContrato),
+  KEY idImovel (idImovel),
+  KEY idLocatario (idLocatario),
+  KEY idLocador (idLocador),
+  CONSTRAINT contrato_ibfk_1 FOREIGN KEY (idImovel) REFERENCES imovel (idImovel),
+  CONSTRAINT contrato_ibfk_2 FOREIGN KEY (idLocatario) REFERENCES locatario (idLocatario),
+  CONSTRAINT contrato_ibfk_3 FOREIGN KEY (idLocador) REFERENCES locador (idLocador)
+);
+
+CREATE TABLE aluguel (
+  idAluguel INT NOT NULL AUTO_INCREMENT,
+  valorAluguel DOUBLE(10,2) NOT NULL,
+  quitada ENUM('S','N') DEFAULT NULL,
+  idContrato INT DEFAULT NULL,
+  idLocador INT DEFAULT NULL,
+  PRIMARY KEY (idAluguel),
+  KEY idContrato (idContrato),
+  CONSTRAINT aluguel_ibfk_1 FOREIGN KEY (idContrato) REFERENCES contrato (idContrato)
+);
+
+CREATE TABLE usuario (
+  idUsuario INT NOT NULL AUTO_INCREMENT,
+  login VARCHAR(20) NOT NULL,
+  senha VARCHAR(20) NOT NULL,
+  chavePix VARCHAR(100) DEFAULT NULL,
+  nomePix VARCHAR(100) DEFAULT NULL,
+  cidade VARCHAR(25) NOT NULL,
+  PRIMARY KEY (idUsuario)
+);
