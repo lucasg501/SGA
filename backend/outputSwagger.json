@@ -1,0 +1,559 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "REST API",
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000/"
+    }
+  ],
+  "paths": {
+    "/usuarios/listarChave": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Lista os usuarios cadastrados",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/usuarios/obter/{idUsuario}": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Obtem um usuario cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idUsuario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/usuarios/gravarChave": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Adiciona uma chave pix",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/usuario"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/autenticar/{login}/{senha}": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Autentica um usuario",
+        "description": "",
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "senha",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/contratos/listar": {
+      "get": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Lista os contratos cadastrados",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/contratos/obter/{idContrato}": {
+      "get": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Obtem um contrato cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idContrato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/contratos/gravar": {
+      "post": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Adiciona um contrato",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contrato"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contratos/alterar": {
+      "put": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Altera um contrato",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contrato"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contratos/excluir/{idContrato}": {
+      "delete": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Exclui um contrato",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idContrato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aluguel/listar": {
+      "get": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Lista os alugueis cadastrados",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aluguel/obter/{idAluguel}": {
+      "get": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Obtem um aluguel cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idAluguel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aluguel/obterAlugueis/{cpfLocador}": {
+      "get": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Obtem os alugueis cadastrados por meio do cpf do locador",
+        "description": "",
+        "parameters": [
+          {
+            "name": "cpfLocador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aluguel/obterPorContrato/{idContrato}": {
+      "get": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Obtem um aluguel cadastrado por meio do id do contrato",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idContrato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aluguel/gravar": {
+      "post": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Adiciona um aluguel",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aluguel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aluguel/alterar": {
+      "put": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Altera um aluguel",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aluguel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aluguel/marcarPago": {
+      "post": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Marca um aluguel como quitado",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aluguel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/imovel/listar": {
+      "get": {
+        "tags": [
+          "Imoveis"
+        ],
+        "summary": "Lista os imoveis cadastrados",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/imovel/obter/{idImovel}": {
+      "get": {
+        "tags": [
+          "Imoveis"
+        ],
+        "summary": "Obtem um imovel cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idImovel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/imovel/gravar": {
+      "post": {
+        "tags": [
+          "Imoveis"
+        ],
+        "summary": "Adiciona o proprietario e locador de um imovel",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/imovel"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "usuario": {
+        "type": "object",
+        "properties": {
+          "idUsuario": {
+            "type": "number",
+            "example": 1
+          },
+          "login": {
+            "type": "string",
+            "example": "alfredo"
+          },
+          "senha": {
+            "type": "string",
+            "example": "123"
+          },
+          "chavePix": {
+            "type": "string",
+            "example": "pix@gmail.com"
+          },
+          "nomePix": {
+            "type": "string",
+            "example": "fetucicio"
+          },
+          "cidade": {
+            "type": "string",
+            "example": "rio de janeiro"
+          }
+        }
+      },
+      "contrato": {
+        "type": "object",
+        "properties": {
+          "idContrato": {
+            "type": "number",
+            "example": 0
+          },
+          "idImovel": {
+            "type": "number",
+            "example": 1
+          },
+          "idLocatario": {
+            "type": "number",
+            "example": 1
+          },
+          "idLocador": {
+            "type": "number",
+            "example": 1
+          },
+          "qtdParcelas": {
+            "type": "number",
+            "example": 12
+          },
+          "valorParcela": {
+            "type": "number",
+            "example": 1000
+          }
+        }
+      },
+      "aluguel": {
+        "type": "object",
+        "properties": {
+          "idAluguel": {
+            "type": "number",
+            "example": 0
+          },
+          "valorAluguel": {
+            "type": "number",
+            "example": 1000
+          },
+          "quitada": {
+            "type": "string",
+            "example": "N"
+          },
+          "idContrato": {
+            "type": "number",
+            "example": 1
+          },
+          "idLocador": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      },
+      "imovel": {
+        "type": "object",
+        "properties": {
+          "idImovel": {
+            "type": "number",
+            "example": 0
+          },
+          "refImovel": {
+            "type": "string",
+            "example": "AP1010"
+          },
+          "valorAluguel": {
+            "type": "number",
+            "example": 1000
+          },
+          "idLocatario": {
+            "type": "number",
+            "example": 1
+          },
+          "idLocador": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "apiKey",
+        "description": "chave para autenticacao da api"
+      }
+    }
+  }
+}

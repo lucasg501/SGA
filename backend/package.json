@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "cookie": "^1.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "localstorage": "^1.0.1",
+    "multer": "^2.0.0",
+    "mysql2": "^3.12.0",
+    "node": "^23.9.0",
+    "router": "^2.2.0",
+    "swagger": "^0.7.5"
+  },
+  "scripts": {
+    "start": "node swagger",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
