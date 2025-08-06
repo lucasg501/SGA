@@ -44,7 +44,7 @@ class ImovelModel{
 
     async obter(idImovel){
         let sql = "select * from imovel where idImovel = ?";
-        let valores = [this.#idImovel];
+        let valores = [idImovel];
         let rows = await banco.ExecutaComando(sql, valores);
         if(rows.length > 0){
             let imovel = new ImovelModel(rows[0]['idImovel'], rows[0]['refImovel'], rows[0]['valorAluguel'], rows[0]['idLocatario'], rows[0]['idLocador']);

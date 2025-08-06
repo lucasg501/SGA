@@ -1,3 +1,9 @@
 {
-  "/admin/contratos/page": "app/admin/contratos/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/chave/page": "app/admin/chave/page.js",
+  "/admin/contratos/gravar/page": "app/admin/contratos/gravar/page.js",
+  "/admin/contratos/page": "app/admin/contratos/page.js",
+  "/admin/chave/alterar/[idUsuario]/page": "app/admin/chave/alterar/[idUsuario]/page.js"
 }
