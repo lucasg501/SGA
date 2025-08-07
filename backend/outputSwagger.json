@@ -449,12 +449,36 @@
         }
       }
     },
-    "/locador/oter/{idLocador}": {
+    "/locador/obter/{idLocador}": {
       "get": {
         "tags": [
           "Locadores"
         ],
         "summary": "Obtem um locador cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idLocador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/locador/obterPorId/{idLocador}": {
+      "get": {
+        "tags": [
+          "Locadores"
+        ],
+        "summary": "Obtem um locador cadastrado por meio do id",
         "description": "",
         "parameters": [
           {

@@ -37,6 +37,18 @@ class LocadorModel {
         }
     }
 
+     async obterPorId(idLocador){
+        let sql = "select * from locador where idLocador = ?";
+        let valores = [idLocador];
+        let rows = await banco.ExecutaComando(sql, valores);
+        if(rows.length > 0){
+            let locador = new LocadorModel(rows[0]['idLocador'], rows[0]['cpfLocador'], rows[0]['nomeLocador']);
+            return locador;
+        }else{
+            return null;
+        }
+     }
+
     async listar(){
         let sql = "select * from locador";
         let rows = await banco.ExecutaComando(sql);

@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 export default function Contratos(){
 
     const [contratos, setContratos] = useState([]);
+    const [listaLocatarios, setListaLocatarios] = useState([]);
+    const [listaLocadores, setListaLocadores] = useState([]);
+    const [listaImoveis, setListaImoveis] = useState([]);
 
     function listarContratos(){
         let status = 0;
@@ -24,8 +27,74 @@ export default function Contratos(){
         })
     }
 
+    function listarLocatarios(){
+        let status = 0;
+        httpClient.get('/locatario/listar')
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                setListaLocatarios(r);
+            }else{
+                alert('Erro ao listar locatários.');
+            }
+        })
+    }
+
+    function listarLocadores(){
+        let status = 0;
+        httpClient.get('/locador/listar')
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                setListaLocadores(r);
+            }else{
+                alert('Erro ao listar locadores.');
+            }
+        })
+    }
+
+    function listarImoveis(){
+        let status = 0;
+        httpClient.get('/imovel/listar')
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                setListaImoveis(r);
+            }else{
+                alert('Erro ao listar imóveis.');
+            }
+        })
+    }
+
+    function buscarLocatario(idLocatario){
+        const locatario = listaLocatarios.find(loc => loc.idLocatario == idLocatario);
+        return locatario ? locatario.nomeLocatario : 'Locatário não encontrado';
+    }
+
+    function buscarLocador(idLocador){
+        const locador = listaLocadores.find(loc => loc.idLocador == idLocador);
+        return locador ? locador.nomeLocador : 'Locador não encontrado';
+    }
+
+    function buscarImovel(idImovel){
+        const imovel = listaImoveis.find(loc => loc.idImovel == idImovel);
+        return imovel ? imovel.refImovel : 'Imóvel não encontrado';
+    }
+
     useEffect(() =>{
         listarContratos();
+        listarLocatarios();
+        listarLocadores();
+        listarImoveis();
     },[]);
 
     return(
@@ -58,9 +127,9 @@ export default function Contratos(){
                                 return(
                                     <tr key={index}>
                                         <td>{value.idContrato}</td>
-                                        <td>{value.idImovel}</td>
-                                        <td>{value.idLocatario}</td>
-                                        <td>{value.idLocador}</td>
+                                        <td>{buscarImovel(value.idImovel)}</td>
+                                        <td>{buscarLocatario(value.idLocatario)}</td>
+                                        <td>{buscarLocador(value.idLocador)}</td>
                                         <td>{value.qtdParcelas}</td>
                                         <td>R${value.valorParcela}</td>
                                         <td>

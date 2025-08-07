@@ -28,6 +28,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/chave/page.js"
     ],
+    "/admin/chave/gravar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/chave/gravar/page.js"
+    ],
     "/admin/contratos/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -37,11 +42,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/contratos/gravar/page.js"
-    ],
-    "/admin/chave/alterar/[idUsuario]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/chave/alterar/[idUsuario]/page.js"
     ]
   }
 }

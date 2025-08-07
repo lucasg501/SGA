@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const LocadorController = require('../controller/locadorController');
+const LocatarioController = require('../controller/locatarioController');
 
-const ctrl = new LocadorController();
+const ctrl = new LocatarioController();
 
 router.get('/listar', (req,res) =>{
     // #swagger.tags = ['Locatarios']

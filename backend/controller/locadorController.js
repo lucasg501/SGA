@@ -25,6 +25,20 @@ class LocadorController{
             res.status(400).json({message:"Parâmetros inválidos."});
         }
     }
+
+    async obterPorId(req,res){
+        if(req.params.idLocador > 0){
+            let locador = new LocadorModel();
+            locador = await locador.obterPorId(req.params.idLocador);
+            if(locador != null){
+                res.status(200).json(locador);
+            }else{
+                res.status(500).json({message:"Erro ao obter locador."});
+            }
+        }else{
+            res.status(400).json({message:"Parâmetros inválidos."});
+        }
+    }
 }
 
 module.exports = LocadorController;

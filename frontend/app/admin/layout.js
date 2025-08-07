@@ -68,7 +68,7 @@ function LayoutContent({ children }) {
             <div id="content-wrapper" className="d-flex flex-column">
                 <div id="content">
                     <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                        <span className="navbar-brand mb-0 h1">Sistema de Gerenciamento de Cafeterias</span>
+                        <span className="navbar-brand mb-0 h1">Sistema de Gerenciamento de Aluguéis</span>
                     </nav>
                     <div className="container-fluid">
                         {children}
