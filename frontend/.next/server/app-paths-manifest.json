@@ -1,8 +1,8 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/chave/page": "app/admin/chave/page.js",
-  "/admin/chave/gravar/page": "app/admin/chave/gravar/page.js",
+  "/admin/contratos/gravar/page": "app/admin/contratos/gravar/page.js",
   "/admin/contratos/page": "app/admin/contratos/page.js",
-  "/admin/contratos/gravar/page": "app/admin/contratos/gravar/page.js"
+  "/admin/contratos/alterar/[idContrato]/page": "app/admin/contratos/alterar/[idContrato]/page.js",
+  "/admin/alugueis/page": "app/admin/alugueis/page.js",
+  "/admin/alugueis/gravar/page": "app/admin/alugueis/gravar/page.js"
 }

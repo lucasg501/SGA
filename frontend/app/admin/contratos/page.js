@@ -133,7 +133,7 @@ export default function Contratos(){
                                         <td>{value.qtdParcelas}</td>
                                         <td>R${value.valorParcela}</td>
                                         <td>
-                                            <Link href={`/admin/contratos/alterar/${value.id}`}>
+                                            <Link href={`/admin/contratos/alterar/${value.idContrato}`}>
                                                 <button className="btn btn-primary">Alterar</button>
                                             </Link>
                                             <button style={{marginLeft: '10px'}} className="btn btn-danger">Excluir</button>

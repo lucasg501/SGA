@@ -85,6 +85,13 @@ export default function ContratoComponent(props) {
         listarLocatario();
     }, []);
 
+    useEffect(() => {
+        if (props.contrato && props.contrato.idLocador) {
+            buscarNomeLocador(props.contrato.idLocador);
+        }
+    }, [props.contrato]);
+
+
     function handleSubmit() {
         if (!contrato.idImovel || !contrato.idLocatario || contrato.qtdParcelas <= 0 || contrato.valorParcela <= 0) {
             alert('Preencha todos os campos corretamente.');
@@ -111,6 +118,30 @@ export default function ContratoComponent(props) {
                 }
             })
 
+    }
+
+    function alterarContrato(){
+        let status = 0;
+        httpClient.put('/contratos/alterar',{
+            idContrato: contrato.idContrato,
+            idImovel: contrato.idImovel,
+            idLocatario: contrato.idLocatario,
+            idLocador: contrato.idLocador,
+            qtdParcelas: contrato.qtdParcelas,
+            valorParcela: contrato.valorParcela
+        })
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                alert('Contrato alterado com sucesso.');
+                window.location = '/admin/contratos';
+            }else{
+                alert('Erro ao alterar contrato.');
+            }
+        })
     }
 
     function formatarValor(valor) {
@@ -175,20 +206,20 @@ export default function ContratoComponent(props) {
                 <div className="form-group">
                     <label>Valor da Parcela</label>
                     <input ref={valorParcela} type="text" className="form-control" value={formatarValor(contrato.valorParcela)} onChange={(e) => {
-                            const valorDigitado = e.target.value;
-                            const apenasNumeros = valorDigitado.replace(/[^\d]/g, '');
-                            const valorFloat = parseFloat(apenasNumeros) / 100;
-                            setContrato({ ...contrato, valorParcela: valorFloat });
-                        }}
+                        const valorDigitado = e.target.value;
+                        const apenasNumeros = valorDigitado.replace(/[^\d]/g, '');
+                        const valorFloat = parseFloat(apenasNumeros) / 100;
+                        setContrato({ ...contrato, valorParcela: valorFloat });
+                    }}
                     />
                 </div>
 
 
                 <div className="form-group">
-                    <Link href="/admin/contrato">
+                    <Link href="/admin/contratos">
                         <button className="btn btn-danger">Cancelar</button>
                     </Link>
-                    <button style={{ marginLeft: '10px' }} className="btn btn-primary" onClick={handleSubmit}>Gravar</button>
+                    <button style={{ marginLeft: '10px' }} className="btn btn-primary" onClick={props.contrato ? alterarContrato : handleSubmit}>Gravar</button>
                 </div>
             </div>
         </div>

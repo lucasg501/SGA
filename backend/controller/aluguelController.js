@@ -56,9 +56,9 @@ class AluguelController{
     }
 
     async marcarPago(req,res){
-        if(req.params.idAluguel > 0){
+        if(req.body.idAluguel > 0){
             let aluguel = new AluguelModel();
-            let ok = await aluguel.marcarQuitada(req.params.idAluguel);
+            let ok = await aluguel.marcarQuitada(req.body.idAluguel);
             if(ok){
                 res.status(200).json({message:"Aluguel quitado com sucesso."});
             }else{
@@ -75,7 +75,7 @@ class AluguelController{
             aluguel.idAluguel = 0;
             aluguel.idContrato = req.body.idContrato;
             aluguel.valorAluguel = req.body.valorAluguel;
-            aluguel.quitada = req.body.quitada;
+            aluguel.quitada = 'N';
             aluguel.idLocador = req.body.idLocador;
             let ok = await aluguel.gravar();
             if(ok){
