@@ -7,8 +7,9 @@ export default function Alugueis() {
     const [listaAlugueis, setListaAlugueis] = useState([]);
     const [contratoSelecionado, setContratoSelecionado] = useState(null);
     const [listaImoveis, setListaImoveis] = useState([]);
+    const [listaContratos, setListaContratos] = useState([]);
 
-    function listarImoveis(){
+    function listarImoveis() {
         let status = 0;
         httpClient.get('/imovel/listar')
             .then(r => {
@@ -17,17 +18,42 @@ export default function Alugueis() {
             })
             .then(r => {
                 if (status == 200) {
-                    setListaImoveis(r.imoveis);
+                    status = r.status;
+                    setListaImoveis(r);
                 } else {
-                    setListaImoveis([]);
+                    alert('Erro ao listar imóveis.');
                 }
-            });
+            })
+            .catch(() => alert('Erro ao listar imóveis.'));
     }
 
-    function acharRefImovel(idImovel){
-        const imovel = listaImoveis.find(loc => loc.idImovel == idImovel);
-        return imovel ? imovel.refImovel : 'Imóvel nao encontrado';
+    function listarContratos() {
+        let status = 0;
+        httpClient.get('/contratos/listar')
+            .then(r => {
+                status = r.status;
+                return r.json();
+            })
+            .then(r => {
+                if (status === 200) {
+                    setListaContratos(r);
+                } else {
+                    alert('Erro ao listar contratos.');
+                }
+            })
+            .catch(() => alert('Erro ao listar contratos.'));
     }
+
+    function acharIdImovelPorContrato(idContrato) {
+        const contrato = listaContratos.find(c => c.idContrato == idContrato);
+        return contrato ? contrato.idImovel : null;
+    }
+
+    function acharRefImovel(idImovel) {
+        const imovel = listaImoveis.find(imv => imv.idImovel == idImovel);
+        return imovel ? imovel.refImovel : null;
+    }
+
 
     function listarAlugueis() {
         let status = 0;
@@ -37,42 +63,41 @@ export default function Alugueis() {
                 return r.json();
             })
             .then(r => {
-                if (status == 200) {
+                if (status === 200) {
                     setListaAlugueis(r.alugueis);
-                    console.log(r.alugueis);
                 } else {
                     setListaAlugueis([]);
                 }
-            });
+            })
+            .catch(() => setListaAlugueis([]));
     }
 
     function quitarFatura(idAluguel) {
-        confirm("Tem certeza que deseja marcar o aluguel como quitado?");
-        if (confirm == true) {
-            let status = 0;
-            httpClient.post('/aluguel/marcarPago', {
-                idAluguel: idAluguel
-            })
-                .then(r => {
-                    status = r.status;
-                    return r.json();
-                })
-                .then(r => {
-                    if (status == 200) {
-                        alert('Fatura quitada com sucesso!');
-                        window.location.reload();
-                    } else {
-                        alert("Erro ao marcar aluguel como quitado!");
-                    }
-                })
-        } else {
-            alert("Erro ao marcar aluguel como quitado!")
+        if (!confirm("Tem certeza que deseja marcar o aluguel como quitado?")) {
+            return;
         }
+
+        let status = 0;
+        httpClient.post('/aluguel/marcarPago', { idAluguel })
+            .then(r => {
+                status = r.status;
+                return r.json();
+            })
+            .then(r => {
+                if (status === 200) {
+                    alert('Fatura quitada com sucesso!');
+                    window.location.reload();
+                } else {
+                    alert("Erro ao marcar aluguel como quitado!");
+                }
+            })
+            .catch(() => alert("Erro ao marcar aluguel como quitado!"));
     }
 
     useEffect(() => {
         listarAlugueis();
         listarImoveis();
+        listarContratos();
     }, []);
 
     // Agrupa os aluguéis por idContrato
@@ -107,17 +132,21 @@ export default function Alugueis() {
                 ) : (
                     <>
                         <div className="form-group">
-                            <label>Selecione um contrato</label>
-                            <select
-                                className="form-control"
-                                onChange={handleContratoSelecionado}
-                                value={contratoSelecionado || ""}
-                            >
-                                <option value="">Selecione um contrato</option>
-                                {Object.keys(alugueisPorContrato).map(id => (
-                                    <option key={id} value={id}> Contrato #{id} Imóvel: {acharRefImovel(id)}</option>
-                                ))}
-                            </select>
+                            <div className="form-group">
+                                <label>Selecione um contrato</label>
+                                <select className="form-control" onChange={handleContratoSelecionado} value={contratoSelecionado || ""}>
+                                    <option value="">Selecione um contrato</option>
+                                    {Object.keys(alugueisPorContrato).map(idContrato => {
+                                        const idImovel = acharIdImovelPorContrato(idContrato);
+                                        return (
+                                            <option key={idContrato} value={idContrato}>
+                                                Contrato #{idContrato} Imóvel: {idImovel ? acharRefImovel(idImovel) : 'Imóvel não encontrado'}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+
                         </div>
 
                         {contratoSelecionado && alugueisPorContrato[contratoSelecionado] && (
@@ -139,16 +168,15 @@ export default function Alugueis() {
                                             <td>{aluguel.quitada === 'S' ? "Sim" : "Não"}</td>
                                             <td>{aluguel.idLocador}</td>
                                             <td>
-                                                {
-                                                    aluguel.quitada == "N" ?
-                                                        <button onClick={() => { quitarFatura(aluguel.idAluguel) }} className="btn btn-success">
-                                                            <i className="fas fa-check"></i>
-                                                        </button>
-                                                        :
-                                                        <button disabled className="btn btn-success">
-                                                            <i className="fas fa-check"></i>
-                                                        </button>
-                                                }
+                                                {aluguel.quitada === "N" ? (
+                                                    <button onClick={() => quitarFatura(aluguel.idAluguel)} className="btn btn-success">
+                                                        <i className="fas fa-check"></i>
+                                                    </button>
+                                                ) : (
+                                                    <button disabled className="btn btn-success">
+                                                        <i className="fas fa-check"></i>
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
