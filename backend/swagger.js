@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const swaggerAutogen = require('swagger-autogen')({openapi: "3.0.0"});
 const UsuarioModel = require('./model/usuarioModel');
 const ContratoModel = require('./model/contratoModel');

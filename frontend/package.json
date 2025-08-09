@@ -11,6 +11,8 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.0.0",
     "cookie": "^1.0.2",
+    "jose": "^6.0.12",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.4.5",
     "qrcode.react": "^4.2.0",
     "react": "19.1.0",

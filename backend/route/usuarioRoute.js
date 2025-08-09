@@ -35,9 +35,19 @@ router.post('/gravarChave', (req,res)=>{
     ctrl.gravarChave(req,res);
 });
 
-router.get('/autenticar/:login/:senha', (req,res)=>{
+router.post('/autenticar', (req,res)=>{
     // #swagger.tags = ['Usuarios']
-    // #swagger.summary = 'Autentica um usuario'
+    // #swagger.summary = 'Autenticação de login'
+    /*
+        #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: { "$ref": "#/definitions/usuario" }
+                }
+            }
+        }
+    */
     ctrl.autenticar(req,res);
 })
 

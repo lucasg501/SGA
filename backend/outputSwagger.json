@@ -73,34 +73,26 @@
         }
       }
     },
-    "/usuarios/autenticar/{login}/{senha}": {
-      "get": {
+    "/usuarios/autenticar": {
+      "post": {
         "tags": [
           "Usuarios"
         ],
-        "summary": "Autentica um usuario",
+        "summary": "Autenticação de login",
         "description": "",
-        "parameters": [
-          {
-            "name": "login",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "senha",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/usuario"
+              }
+            }
           }
         }
       }

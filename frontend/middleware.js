@@ -1,22 +1,27 @@
 import { NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
-export function middleware(request) {
+const SECRET_KEY = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
+
+export async function middleware(request) {
   const cookieAuth = request.cookies.get('cookieAuth');
 
-  // Verifica se o cookie existe e tem o valor esperado (ex: token123)
-  if (!cookieAuth || cookieAuth.value !== 'token123') {
+  if (!cookieAuth) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-
-    const response = NextResponse.redirect(url);
-    response.headers.set('Cache-Control', 'no-store');
-    return response;
+    return NextResponse.redirect(url);
   }
 
-  // Se o cookie é válido, continua normalmente
-  return NextResponse.next();
+  try {
+    const { payload } = await jwtVerify(cookieAuth.value, SECRET_KEY);
+    return NextResponse.next();
+  } catch {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
 }
 
 export const config = {
-  matcher: ['/admin/:path*'], // Protege rotas que começam com /admin/
+  matcher: ['/admin/:path*'],
 };
