@@ -253,7 +253,7 @@
         }
       }
     },
-    "/aluguel/obterAlugueis/{cpfLocador}": {
+    "/aluguel/obterAlugueis/{cpfLocatario}": {
       "get": {
         "tags": [
           "Alugueis"
@@ -262,7 +262,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "cpfLocador",
+            "name": "cpfLocatario",
             "in": "path",
             "required": true,
             "schema": {
@@ -618,6 +618,9 @@
           "idLocador": {
             "type": "number",
             "example": 1
+          },
+          "idLocatario": {
+            "type": "undefined"
           }
         }
       },

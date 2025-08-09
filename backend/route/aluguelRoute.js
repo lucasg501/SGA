@@ -18,7 +18,7 @@ router.get('/obter/:idAluguel', (req,res)=>{
     ctrl.obter(req,res);
 });
 
-router.get('/obterAlugueis/:cpfLocador', (req,res)=>{
+router.get('/obterAlugueis/:cpfLocatario', (req,res)=>{
     // #swagger.tags = ['Alugueis']
     // #swagger.summary = 'Obtem os alugueis cadastrados por meio do cpf do locador'
 

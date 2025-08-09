@@ -45,6 +45,18 @@ class LocatarioModel{
             return null;
         }
     }
+
+    async obterPorCpf(cpfLocatario){
+        let sql = "select * from locatario where cpfLocatario = ?";
+        let valores = [cpfLocatario];
+        let rows = await banco.ExecutaComando(sql, valores);
+        if(rows.length > 0){
+            let locatario = new LocatarioModel(rows[0]['idLocatario'], rows[0]['nomeLocatario'], rows[0]['cpfLocatario']);
+            return locatario;
+        }else{
+            return null;
+        }
+    }
 }
 
 module.exports = LocatarioModel;

@@ -86,6 +86,7 @@ export default function AluguelComponent(props) {
             idContrato: contratoSelecionado.idContrato,
             valorAluguel: contratoSelecionado.valorParcela,
             quitada: contratoSelecionado.quitada,
+            idLocatario: contratoSelecionado.idLocatario,
             idLocador: contratoSelecionado.idLocador
         })
             .then(r => {

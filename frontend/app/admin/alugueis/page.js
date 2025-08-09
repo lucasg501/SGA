@@ -8,6 +8,40 @@ export default function Alugueis() {
     const [contratoSelecionado, setContratoSelecionado] = useState(null);
     const [listaImoveis, setListaImoveis] = useState([]);
     const [listaContratos, setListaContratos] = useState([]);
+    const [listaLocador, setListaLocador] = useState([]);
+    const [listaLocatario, setListaLocatario] = useState([]);
+
+    function listarLocador(){
+        let status = 0;
+        httpClient.get('/locador/listar')
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status === 200){
+                setListaLocador(r);
+            }else{
+                alert('Erro ao listar locadores.');
+            }
+        })
+    }
+
+    function listarLocatario(){
+        let status = 0;
+        httpClient.get('/locatario/listar')
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                setListaLocatario(r);
+            }else{
+                alert('Erro ao listar locatários.');
+            }
+        })
+    }
 
     function listarImoveis() {
         let status = 0;
@@ -94,10 +128,22 @@ export default function Alugueis() {
             .catch(() => alert("Erro ao marcar aluguel como quitado!"));
     }
 
+    function procurarNomeLocador(idLocador){
+        let locador = listaLocador.find(loc => loc.idLocador == idLocador);
+        return locador ? locador.nomeLocador : 'Locador nao encontrado';
+    }
+
+    function procurarNomeLocatario(idLocatario){
+        let locatario = listaLocatario.find(loc => loc.idLocatario == idLocatario);
+        return locatario ? locatario.nomeLocatario : 'Locatario nao encontrado';
+    }
+
     useEffect(() => {
         listarAlugueis();
         listarImoveis();
         listarContratos();
+        listarLocador();
+        listarLocatario();
     }, []);
 
     // Agrupa os aluguéis por idContrato
@@ -156,7 +202,8 @@ export default function Alugueis() {
                                         <th>Parcela</th>
                                         <th>Valor</th>
                                         <th>Quitada?</th>
-                                        <th>ID Locador</th>
+                                        <th>Locador</th>
+                                        <th>Locatário</th>
                                         <th>Quitar Fatura</th>
                                     </tr>
                                 </thead>
@@ -166,7 +213,8 @@ export default function Alugueis() {
                                             <td>Nº{index + 1}</td>
                                             <td>R$ {Number(aluguel.valorAluguel).toFixed(2)}</td>
                                             <td>{aluguel.quitada === 'S' ? "Sim" : "Não"}</td>
-                                            <td>{aluguel.idLocador}</td>
+                                            <td>{procurarNomeLocador(aluguel.idLocador)}</td>
+                                            <td>{procurarNomeLocatario(aluguel.idLocatario)}</td>
                                             <td>
                                                 {aluguel.quitada === "N" ? (
                                                     <button onClick={() => quitarFatura(aluguel.idAluguel)} className="btn btn-success">

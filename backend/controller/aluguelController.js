@@ -7,7 +7,7 @@ class AluguelController{
         let lista = await aluguel.listar();
         let listaRetorno = [];
         for(let i=0; i<lista.length; i++){
-            let aluguel = new AluguelModel(lista[i].idAluguel, lista[i].valorAluguel, lista[i].quitada, lista[i].idContrato, lista[i].idLocador);
+            let aluguel = new AluguelModel(lista[i].idAluguel, lista[i].valorAluguel, lista[i].quitada, lista[i].idContrato, lista[i].idLocador, lista[i].idLocatario);
             listaRetorno.push(aluguel);
         }
         res.status(200).json({alugueis:listaRetorno});
@@ -42,9 +42,9 @@ class AluguelController{
     }
 
     async obterAlugueis(req,res){
-        if(req.params.cpfLocador != null){
+        if(req.params.cpfLocatario != null){
             let aluguel = new AluguelModel();
-            aluguel = await aluguel.obterAlugueis(req.params.cpfLocador);
+            aluguel = await aluguel.obterAlugueis(req.params.cpfLocatario);
             if(aluguel != null){
                 res.status(200).json(aluguel);
             }else{
@@ -76,6 +76,7 @@ class AluguelController{
             aluguel.idContrato = req.body.idContrato;
             aluguel.valorAluguel = req.body.valorAluguel;
             aluguel.quitada = 'N';
+            aluguel.idLocatario = req.body.idLocatario;
             aluguel.idLocador = req.body.idLocador;
             let ok = await aluguel.gravar();
             if(ok){
