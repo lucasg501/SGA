@@ -1,76 +1,80 @@
 const AluguelModel = require('../model/aluguelModel');
 
-class AluguelController{
+class AluguelController {
 
-    async listar(req,res){
+    async listar(req, res) {
         let aluguel = new AluguelModel();
         let lista = await aluguel.listar();
         let listaRetorno = [];
-        for(let i=0; i<lista.length; i++){
+        for (let i = 0; i < lista.length; i++) {
             let aluguel = new AluguelModel(lista[i].idAluguel, lista[i].valorAluguel, lista[i].quitada, lista[i].idContrato, lista[i].idLocador, lista[i].idLocatario, lista[i].dataVencimento);
             listaRetorno.push(aluguel);
         }
-        res.status(200).json({alugueis:listaRetorno});
+        res.status(200).json({ alugueis: listaRetorno });
     }
 
-    async obter(req,res){
-        if(req.params.idAluguel > 0){
+    async obter(req, res) {
+        if (req.params.idAluguel > 0) {
             let aluguel = new AluguelModel();
             aluguel = await aluguel.obter(req.params.idAluguel);
-            if(aluguel != null){
+            if (aluguel != null) {
                 res.status(200).json(aluguel);
-            }else{
-                res.status(500).json({message:"Erro ao obter aluguel."});
+            } else {
+                res.status(500).json({ message: "Erro ao obter aluguel." });
             }
-        }else{
-            res.status(400).json({message:"Parâmetros inválidos."});
+        } else {
+            res.status(400).json({ message: "Parâmetros inválidos." });
         }
     }
 
-    async obterPorContrato(req,res){
-        if(req.params.idContrato > 0){
+    async obterPorContrato(req, res) {
+        if (req.params.idContrato > 0) {
             let aluguel = new AluguelModel();
             aluguel = await aluguel.obterPorContrato(req.params.idContrato);
-            if(aluguel != null){
+            if (aluguel != null) {
                 res.status(200).json(aluguel);
-            }else{
-                res.status(500).json({message:"Erro ao obter aluguel."});
+            } else {
+                res.status(500).json({ message: "Erro ao obter aluguel." });
             }
-        }else{
-            res.status(400).json({message:"Parâmetros inválidos."});
+        } else {
+            res.status(400).json({ message: "Parâmetros inválidos." });
         }
     }
 
-    async obterAlugueis(req,res){
-        if(req.params.cpfLocatario != null){
-            let aluguel = new AluguelModel();
-            aluguel = await aluguel.obterAlugueis(req.params.cpfLocatario);
-            if(aluguel != null){
-                res.status(200).json(aluguel);
-            }else{
-                res.status(500).json({message:"Erro ao obter aluguel."});
+    async obterAlugueis(req, res) {
+        try {
+            if (req.params.cpfLocatario != null) {
+                let aluguel = new AluguelModel();
+                aluguel = await aluguel.obterAlugueis(req.params.cpfLocatario);
+                if (aluguel != null) {
+                    res.status(200).json(aluguel);
+                } else {
+                    res.status(500).json({ message: "Erro ao obter aluguel." });
+                }
+            } else {
+                res.status(400).json({ message: "Parâmetros inválidos." });
             }
-        }else{
-            res.status(400).json({message:"Parâmetros inválidos."});
+        } catch (e) {
+            res.status(500).json({ message: "Erro ao obter aluguel." });
         }
     }
 
-    async marcarPago(req,res){
-        if(req.body.idAluguel > 0){
+    async marcarPago(req, res) {
+        if (req.body.idAluguel > 0) {
             let aluguel = new AluguelModel();
             let ok = await aluguel.marcarQuitada(req.body.idAluguel);
-            if(ok){
-                res.status(200).json({message:"Aluguel quitado com sucesso."});
-            }else{
-                res.status(500).json({message:"Erro ao marcar quitado."});
+            if (ok) {
+                res.status(200).json({ message: "Aluguel quitado com sucesso." });
+            } else {
+                res.status(500).json({ message: "Erro ao marcar quitado." });
             }
-        }else{
-            res.status(400).json({message:"Parâmetros inválidos."});
+        } else {
+            res.status(400).json({ message: "Parâmetros inválidos." });
         }
     }
 
-    async gravar(req,res){
-        if(Object.keys(req.body).length > 0){
+    async gravar(req, res) {
+        if (Object.keys(req.body).length > 0) {
             let aluguel = new AluguelModel();
             aluguel.idAluguel = 0;
             aluguel.idContrato = req.body.idContrato;
@@ -80,18 +84,18 @@ class AluguelController{
             aluguel.idLocador = req.body.idLocador;
             aluguel.dataVencimento = req.body.dataVencimento;
             let ok = await aluguel.gravar();
-            if(ok){
-                res.status(200).json({message:"Aluguel gravado com sucesso."});
-            }else{
-                res.status(500).json({message:"Erro ao gravar aluguel."});
+            if (ok) {
+                res.status(200).json({ message: "Aluguel gravado com sucesso." });
+            } else {
+                res.status(500).json({ message: "Erro ao gravar aluguel." });
             }
-        }else{
-            res.status(400).json({message:"Parâmetros inválidos."});
+        } else {
+            res.status(400).json({ message: "Parâmetros inválidos." });
         }
     }
 
-    async alterar(req,res){
-        if(Object.keys(req.body).length > 0){
+    async alterar(req, res) {
+        if (Object.keys(req.body).length > 0) {
             let aluguel = new AluguelModel();
             aluguel.idAluguel = req.body.idAluguel;
             aluguel.idContrato = req.body.idContrato;
@@ -101,13 +105,13 @@ class AluguelController{
             aluguel.idLocatario = req.body.idLocatario;
             aluguel.dataVencimento = req.body.dataVencimento;
             let ok = await aluguel.gravar();
-            if(ok){
-                res.status(200).json({message:"Aluguel alterado com sucesso."});
-            }else{
-                res.status(500).json({message:"Erro ao alterar aluguel."});
+            if (ok) {
+                res.status(200).json({ message: "Aluguel alterado com sucesso." });
+            } else {
+                res.status(500).json({ message: "Erro ao alterar aluguel." });
             }
-        }else{
-            res.status(400).json({message:"Parâmetros inválidos."});
+        } else {
+            res.status(400).json({ message: "Parâmetros inválidos." });
         }
     }
 
