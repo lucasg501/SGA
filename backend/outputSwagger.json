@@ -585,6 +585,10 @@
           "valorParcela": {
             "type": "number",
             "example": 1000
+          },
+          "dataVencimento": {
+            "type": "string",
+            "example": "02/14/2025"
           }
         }
       },
@@ -612,6 +616,10 @@
             "example": 1
           },
           "idLocatario": {
+            "type": "string",
+            "example": "02/14/2025"
+          },
+          "dataVencimento": {
             "type": "undefined"
           }
         }

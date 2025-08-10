@@ -9,21 +9,24 @@ class AluguelModel {
     #idContrato;
     #idLocador;
     #idLocatario;
+    #dataVencimento;
 
     get idAluguel() { return this.#idAluguel } set idAluguel(idAluguel) { this.#idAluguel = idAluguel }
     get valorAluguel() { return this.#valorAluguel } set valorAluguel(valorAluguel) { this.#valorAluguel = valorAluguel }
     get quitada() { return this.#quitada } set quitada(quitada) { this.#quitada = quitada }
     get idContrato() { return this.#idContrato } set idContrato(idContrato) { this.#idContrato = idContrato }
     get idLocador() { return this.#idLocador } set idLocador(idLocador) { this.#idLocador = idLocador }
-    get idLocatario(){return this.#idLocatario} set idLocatario(idLocatario){this.#idLocatario = idLocatario}
+    get idLocatario() { return this.#idLocatario } set idLocatario(idLocatario) { this.#idLocatario = idLocatario }
+    get dataVencimento() { return this.#dataVencimento } set dataVencimento(dataVencimento) { this.#dataVencimento = dataVencimento }
 
-    constructor(idAluguel, valorAluguel, quitada, idContrato, idLocador, idLocatario) {
+    constructor(idAluguel, valorAluguel, quitada, idContrato, idLocador, idLocatario, dataVencimento) {
         this.#idAluguel = idAluguel;
         this.#valorAluguel = valorAluguel;
         this.#quitada = quitada;
         this.#idContrato = idContrato;
         this.#idLocador = idLocador;
-        this.#idLocatario = idLocatario
+        this.#idLocatario = idLocatario,
+        this.#dataVencimento = dataVencimento
     }
 
     toJSON() {
@@ -33,7 +36,8 @@ class AluguelModel {
             'quitada': this.#quitada,
             'idContrato': this.#idContrato,
             'idLocador': this.#idLocador,
-            'idLocatario': this.#idLocatario
+            'idLocatario': this.#idLocatario,
+            'dataVencimento': this.#dataVencimento
         }
     }
 
@@ -42,7 +46,7 @@ class AluguelModel {
         let rows = await banco.ExecutaComando(sql);
         let lista = [];
         for (let i = 0; i < rows.length; i++) {
-            lista.push(new AluguelModel(rows[i]['idAluguel'], rows[i]['valorAluguel'], rows[i]['quitada'], rows[i]['idContrato'], rows[i]['idLocador'], rows[i]['idLocatario']));
+            lista.push(new AluguelModel(rows[i]['idAluguel'], rows[i]['valorAluguel'], rows[i]['quitada'], rows[i]['idContrato'], rows[i]['idLocador'], rows[i]['idLocatario'], rows[i]['dataVencimento']));
         }
         return lista;
     }
@@ -52,7 +56,7 @@ class AluguelModel {
         let valores = [idAluguel];
         let rows = await banco.ExecutaComando(sql, valores);
         if (rows.length > 0) {
-            let aluguel = new AluguelModel(rows[0]['idAluguel'], rows[0]['valorAluguel'], rows[0]['quitada'], rows[0]['idContrato'], rows[0]['idLocador'], rows[0]['idLocatario']);
+            let aluguel = new AluguelModel(rows[0]['idAluguel'], rows[0]['valorAluguel'], rows[0]['quitada'], rows[0]['idContrato'], rows[0]['idLocador'], rows[0]['idLocatario'], rows[0]['dataVencimento']);
             return aluguel;
         } else {
             return null;
@@ -65,7 +69,7 @@ class AluguelModel {
         let rows = await banco.ExecutaComando(sql, valores);
         let lista = [];
         for (let i = 0; i < rows.length; i++) {
-            lista.push(new AluguelModel(rows[i]['idAluguel'], rows[i]['valorAluguel'], rows[i]['quitada'], rows[i]['idContrato'], rows[i]['idLocador'], rows[i]['idLocatario']));
+            lista.push(new AluguelModel(rows[i]['idAluguel'], rows[i]['valorAluguel'], rows[i]['quitada'], rows[i]['idContrato'], rows[i]['idLocador'], rows[i]['idLocatario'], rows[i]['dataVencimento']));
         }
         return lista;
     }
@@ -83,7 +87,6 @@ class AluguelModel {
     }
 
     async gravar() {
-
         let sqlBusca = `SELECT qtdParcelas FROM contrato WHERE idContrato = ?`;
         let dados = await banco.ExecutaComando(sqlBusca, [this.#idContrato]);
 
@@ -95,22 +98,44 @@ class AluguelModel {
 
         if (this.#idAluguel == 0) {
             let ok = true;
-
+            let dataVencimentoAtual = new Date(this.#dataVencimento);
             for (let i = 0; i < qtdParcelas; i++) {
-                let sql = `INSERT INTO aluguel (valorAluguel, quitada, idContrato, idLocador, idLocatario) VALUES (?, ?, ?, ?,?)`;
-                let valores = [this.#valorAluguel, this.#quitada, this.#idContrato, this.#idLocatario, this.#idLocador];
+                let sql = ` INSERT INTO aluguel  (valorAluguel, quitada, idContrato, idLocador, idLocatario, dataVencimento) VALUES (?, ?, ?, ?, ?, ?)`;
+                // Formata a data no padrão YYYY-MM-DD para o banco
+                let dataFormatada = dataVencimentoAtual.toISOString().split('T')[0];
+
+                let valores = [
+                    this.#valorAluguel,
+                    this.#quitada,
+                    this.#idContrato,
+                    this.#idLocador,
+                    this.#idLocatario,
+                    dataFormatada
+                ];
+
                 let resultado = await banco.ExecutaComandoNonQuery(sql, valores);
 
-                // Se algum insert falhar, ok vira false
                 if (!resultado) {
                     ok = false;
                 }
+
+                // Incrementa 1 mês para a próxima parcela
+                dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
             }
 
             return ok;
         } else {
-            let sql = `UPDATE aluguel SET valorAluguel = ?, quitada = ?, idContrato = ?, idLocador = ?, idLocatario = ? WHERE idAluguel = ?`;
-            let valores = [this.#valorAluguel, this.#quitada, this.#idContrato, this.#idLocatario, this.#idLocador, this.#idAluguel];
+            let sql = ` UPDATE aluguel  SET valorAluguel = ?, quitada = ?, idContrato = ?, idLocador = ?, idLocatario = ?, dataVencimento = ? WHERE idAluguel = ?`;
+            let valores = [
+                this.#valorAluguel,
+                this.#quitada,
+                this.#idContrato,
+                this.#idLocador,
+                this.#idLocatario,
+                this.#dataVencimento,
+                this.#idAluguel
+            ];
+
             let ok = await banco.ExecutaComandoNonQuery(sql, valores);
             return ok;
         }
@@ -141,7 +166,9 @@ class AluguelModel {
                 rows[i].valorAluguel,
                 rows[i].quitada,
                 rows[i].idContrato,
-                rows[i].idLocatario
+                rows[i].idLocador,
+                rows[i].idLocatario,
+                rows[i].dataVencimento
             ));
         }
 

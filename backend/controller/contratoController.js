@@ -36,6 +36,7 @@ class ContratoController{
             contrato.idLocador = req.body.idLocador;
             contrato.qtdParcelas = req.body.qtdParcelas;
             contrato.valorParcela = req.body.valorParcela;
+            contrato.dataVencimento = req.body.dataVencimento;
             let ok = await contrato.gravar();
             if(ok){
                 res.status(200).json({msg:"Contrato gravado com sucesso."});
@@ -56,6 +57,7 @@ class ContratoController{
             contrato.idLocador = req.body.idLocador;
             contrato.qtdParcelas = req.body.qtdParcelas;
             contrato.valorParcela = req.body.valorParcela;
+            contrato.dataVencimento = req.body.dataVencimento;
             let ok = await contrato.gravar();
             if(ok){
                 res.status(200).json({msg:"Contrato alterado com sucesso."});

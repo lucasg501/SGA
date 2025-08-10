@@ -5,9 +5,23 @@ import { QRCodeCanvas } from "qrcode.react";
 
 export default function Home() {
   const cpfLocatario = useRef(null);
+  const [cpfFormatado, setCpfFormatado] = useState("");
   const [listaParcelas, setListaParcelas] = useState([]);
   const [parcelaQRAtiva, setParcelaQRAtiva] = useState(null);
   const [dadosPix, setDadosPix] = useState(null);
+
+  function formatarCPF(valor) {
+    return valor
+      .replace(/\D/g, "") // remove não números
+      .slice(0, 11) // máximo 11 dígitos
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+
+  function handleChangeCPF(e) {
+    setCpfFormatado(formatarCPF(e.target.value));
+  }
 
   // Carregar dados PIX do backend
   function carregarDadosPix() {
@@ -26,17 +40,27 @@ export default function Home() {
       });
   }
 
-  function procurarParcelas(cpf) {
-    httpClient.get(`/aluguel/obterAlugueis/${cpf}`)
+  function procurarParcelas(cpfFormatado) {
+    const cpfLimpo = cpfFormatado.replace(/\D/g, ""); // remove pontos e traço
+    httpClient.get(`/aluguel/obterAlugueis/${cpfLimpo}`)
       .then(r => {
-        if (r.status === 200) return r.json();
-        alert('Erro ao listar parcelas.');
-        return null;
+        if (r.status === 200) {
+          return r.json();
+        } else {
+          alert('Erro ao listar parcelas.');
+          return null;
+        }
       })
       .then(data => {
-        if (data) setListaParcelas(data);
+        if (!data || data.length === 0) {
+          alert('Nenhuma parcela encontrada.');
+          setListaParcelas([]);
+        } else {
+          setListaParcelas(data);
+        }
       });
   }
+
 
   useEffect(() => {
     carregarDadosPix();
@@ -59,7 +83,6 @@ export default function Home() {
     return crc.toString(16).toUpperCase().padStart(4, '0');
   }
 
-  // Função PIX que funciona perfeitamente:
   function gerarPayloadPix(
     valor,
     chavePix = dadosPix?.chavePix ? (dadosPix.chavePix.startsWith('+') ? dadosPix.chavePix : '+' + dadosPix.chavePix) : "+5518996570042",
@@ -99,6 +122,30 @@ export default function Home() {
     setParcelaQRAtiva(null);
   }
 
+  function formatarData(dataVencimento) {
+    return new Date(dataVencimento)
+      .toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  // Calcula valor com multa de 2% ao mês e juros de 1% ao dia para parcelas atrasadas
+  function calcularValorComMulta(valorOriginal, dataVencimento) {
+    const hoje = new Date();
+    const venc = new Date(dataVencimento);
+    if (hoje <= venc) return parseFloat(valorOriginal);
+
+    const diffTime = hoje - venc;
+    const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    // Multa de 2% ao mês = 2% / 30 dias por dia atrasado
+    const multaDiaria = 0.02 / 30;
+    const multa = valorOriginal * multaDiaria * diffDias;
+
+    // Juros de 1% por dia
+    const juros = valorOriginal * 0.01 * diffDias;
+
+    return parseFloat(valorOriginal) + multa + juros;
+  }
+
   return (
     <div>
       <h1 style={{ textAlign: "center" }}>Verificar as parcelas pelo CPF</h1>
@@ -106,8 +153,8 @@ export default function Home() {
       {listaParcelas.length === 0 ? (
         <div style={{ width: "400px", margin: "0 auto", border: "1px solid #ccc", padding: "10px", borderRadius: 10 }} className="form form-group">
           <label>Informe seu CPF</label>
-          <input type="text" className="form-control" placeholder="000.000.000-00" ref={cpfLocatario} />
-          <button style={{ marginTop: "10px", width: "100%" }} className="btn btn-primary" onClick={() => procurarParcelas(cpfLocatario.current.value)}>Procurar</button>
+          <input type="text" className="form-control" placeholder="000.000.000-00" value={cpfFormatado} onChange={handleChangeCPF} ref={cpfLocatario} maxLength={14} />
+          <button style={{ marginTop: "10px", width: "100%" }} className="btn btn-primary" onClick={() => procurarParcelas(cpfFormatado)}>Procurar</button>
         </div>
       ) : (
         <div>
@@ -127,24 +174,34 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {listaParcelas.map((value, index) => (
-              <tr key={index} style={{ position: "relative" }}>
-                <td>{index + 1}</td>
-                <td>{'Ainda não tem vencimento'}</td>
-                <td>{value.valorAluguel}</td>
-                <td>{value.quitada}</td>
-                <td>
-                  {
-                    value.quitada == "N" || value.quitada == 'n' ? 
-                    <button className="btn btn-secondary" onClick={() => { carregarDadosPix().then(() => { setParcelaQRAtiva({ ...value, index }); });}}>
-                    Gerar QR Code
-                  </button>
-                  :
-                  <p style={{ color: 'green' }}>Fatura Quitada</p>
-                  }
-                </td>
-              </tr>
-            ))}
+            {listaParcelas.map((value, index) => {
+              const venc = new Date(value.dataVencimento);
+              const hoje = new Date();
+              const atrasada = hoje > venc;
+
+              const valorComJuros = atrasada ? calcularValorComMulta(parseFloat(value.valorAluguel), value.dataVencimento) : parseFloat(value.valorAluguel);
+
+              return (
+                <tr key={index} style={{ position: "relative" }}>
+                  <td>{index + 1}</td>
+                  <td style={{ color: atrasada ? 'red' : 'inherit', fontWeight: atrasada ? 'bold' : 'normal' }}>
+                    {formatarData(value.dataVencimento)} {atrasada && <span style={{ marginLeft: 10, fontWeight: 'bold' }}>(Atrasada)</span>}
+                  </td>
+                  <td>R$ {valorComJuros.toFixed(2)}</td>
+                  <td>{value.quitada == "N" || value.quitada == 'n' ? "Aberta" : "Quitada"}</td>
+                  <td>
+                    {
+                      value.quitada == "N" || value.quitada == 'n' ?
+                        <button className="btn btn-secondary" onClick={() => { carregarDadosPix().then(() => { setParcelaQRAtiva({ ...value, index }); }); }}>
+                          Gerar QR Code
+                        </button>
+                        :
+                        <p style={{ color: 'green', fontWeight: 'bold' }}>Fatura Quitada</p>
+                    }
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       )}
@@ -175,10 +232,20 @@ export default function Home() {
             }}
           >
             <h3>Parcela #{parcelaQRAtiva.index + 1}</h3>
-            <QRCodeCanvas value={gerarPayloadPix(parcelaQRAtiva.valorAluguel)} size={200} />
-            <div style={{ marginTop: 10, fontWeight: 'bold' }}>
-              R${parseFloat(parcelaQRAtiva.valorAluguel).toFixed(2)}
-            </div>
+
+            {/* Calcular valor com multa e juros */}
+            {(() => {
+              const valorCorrigido = calcularValorComMulta(parseFloat(parcelaQRAtiva.valorAluguel), parcelaQRAtiva.dataVencimento);
+              return (
+                <>
+                  <QRCodeCanvas value={gerarPayloadPix(valorCorrigido)} size={200} />
+                  <div style={{ marginTop: 10, fontWeight: 'bold' }}>
+                    R$ {valorCorrigido.toFixed(2)}
+                  </div>
+                </>
+              );
+            })()}
+
             <button
               onClick={fecharModal}
               style={{
@@ -192,6 +259,7 @@ export default function Home() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

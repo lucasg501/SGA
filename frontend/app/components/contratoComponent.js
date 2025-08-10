@@ -10,7 +10,8 @@ export default function ContratoComponent(props) {
         idLocatario: 0,
         idLocador: 0,
         qtdParcelas: 0,
-        valorParcela: 0
+        valorParcela: 0,
+        dataVencimento: null
     });
 
     const [listaImoveis, setListaImoveis] = useState([]);
@@ -21,6 +22,7 @@ export default function ContratoComponent(props) {
     const idLocatario = useRef(null);
     const qtdParcelas = useRef(null);
     const valorParcela = useRef(null);
+    const dataVencimento = useRef(null);
 
     function listarImoveis() {
         httpClient.get('/imovel/listar')
@@ -103,7 +105,8 @@ export default function ContratoComponent(props) {
             idLocatario: contrato.idLocatario,
             idLocador: contrato.idLocador,
             qtdParcelas: contrato.qtdParcelas,
-            valorParcela: contrato.valorParcela
+            valorParcela: contrato.valorParcela,
+            dataVencimento: contrato.dataVencimento
         })
             .then(r => {
                 status = r.status;
@@ -128,7 +131,8 @@ export default function ContratoComponent(props) {
             idLocatario: contrato.idLocatario,
             idLocador: contrato.idLocador,
             qtdParcelas: contrato.qtdParcelas,
-            valorParcela: contrato.valorParcela
+            valorParcela: contrato.valorParcela,
+            dataVencimento: contrato.dataVencimento
         })
         .then(r=>{
             status = r.status;
@@ -214,6 +218,13 @@ export default function ContratoComponent(props) {
                     />
                 </div>
 
+                <div className="form-group">
+                    <label>Primeira data de vencimento</label>
+                    <input type="date" className="form-control" value={contrato.dataVencimento} onChange={(e) =>
+                        setContrato({ ...contrato, dataVencimento: e.target.value })
+                    }
+                    />
+                </div>
 
                 <div className="form-group">
                     <Link href="/admin/contratos">

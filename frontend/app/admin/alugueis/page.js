@@ -2,6 +2,7 @@
 import httpClient from "@/app/utils/httpClient";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 
 export default function Alugueis() {
     const [listaAlugueis, setListaAlugueis] = useState([]);
@@ -11,36 +12,36 @@ export default function Alugueis() {
     const [listaLocador, setListaLocador] = useState([]);
     const [listaLocatario, setListaLocatario] = useState([]);
 
-    function listarLocador(){
+    function listarLocador() {
         let status = 0;
         httpClient.get('/locador/listar')
-        .then(r=>{
-            status = r.status;
-            return r.json();
-        })
-        .then(r=>{
-            if(status === 200){
-                setListaLocador(r);
-            }else{
-                alert('Erro ao listar locadores.');
-            }
-        })
+            .then(r => {
+                status = r.status;
+                return r.json();
+            })
+            .then(r => {
+                if (status === 200) {
+                    setListaLocador(r);
+                } else {
+                    alert('Erro ao listar locadores.');
+                }
+            })
     }
 
-    function listarLocatario(){
+    function listarLocatario() {
         let status = 0;
         httpClient.get('/locatario/listar')
-        .then(r=>{
-            status = r.status;
-            return r.json();
-        })
-        .then(r=>{
-            if(status == 200){
-                setListaLocatario(r);
-            }else{
-                alert('Erro ao listar locatários.');
-            }
-        })
+            .then(r => {
+                status = r.status;
+                return r.json();
+            })
+            .then(r => {
+                if (status == 200) {
+                    setListaLocatario(r);
+                } else {
+                    alert('Erro ao listar locatários.');
+                }
+            })
     }
 
     function listarImoveis() {
@@ -128,12 +129,12 @@ export default function Alugueis() {
             .catch(() => alert("Erro ao marcar aluguel como quitado!"));
     }
 
-    function procurarNomeLocador(idLocador){
+    function procurarNomeLocador(idLocador) {
         let locador = listaLocador.find(loc => loc.idLocador == idLocador);
         return locador ? locador.nomeLocador : 'Locador nao encontrado';
     }
 
-    function procurarNomeLocatario(idLocatario){
+    function procurarNomeLocatario(idLocatario) {
         let locatario = listaLocatario.find(loc => loc.idLocatario == idLocatario);
         return locatario ? locatario.nomeLocatario : 'Locatario nao encontrado';
     }
@@ -159,6 +160,12 @@ export default function Alugueis() {
         const id = e.target.value;
         setContratoSelecionado(id);
     }
+
+    function formatarData(dataVencimento) {
+        return new Date(dataVencimento)
+            .toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
 
     return (
         <div>
@@ -204,6 +211,7 @@ export default function Alugueis() {
                                         <th>Quitada?</th>
                                         <th>Locador</th>
                                         <th>Locatário</th>
+                                        <th>Vencimento</th>
                                         <th>Quitar Fatura</th>
                                     </tr>
                                 </thead>
@@ -215,6 +223,7 @@ export default function Alugueis() {
                                             <td>{aluguel.quitada === 'S' ? "Sim" : "Não"}</td>
                                             <td>{procurarNomeLocador(aluguel.idLocador)}</td>
                                             <td>{procurarNomeLocatario(aluguel.idLocatario)}</td>
+                                            <td>{formatarData(aluguel.dataVencimento)}</td>
                                             <td>
                                                 {aluguel.quitada === "N" ? (
                                                     <button onClick={() => quitarFatura(aluguel.idAluguel)} className="btn btn-success">

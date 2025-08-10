@@ -7,7 +7,7 @@ class AluguelController{
         let lista = await aluguel.listar();
         let listaRetorno = [];
         for(let i=0; i<lista.length; i++){
-            let aluguel = new AluguelModel(lista[i].idAluguel, lista[i].valorAluguel, lista[i].quitada, lista[i].idContrato, lista[i].idLocador, lista[i].idLocatario);
+            let aluguel = new AluguelModel(lista[i].idAluguel, lista[i].valorAluguel, lista[i].quitada, lista[i].idContrato, lista[i].idLocador, lista[i].idLocatario, lista[i].dataVencimento);
             listaRetorno.push(aluguel);
         }
         res.status(200).json({alugueis:listaRetorno});
@@ -78,6 +78,7 @@ class AluguelController{
             aluguel.quitada = 'N';
             aluguel.idLocatario = req.body.idLocatario;
             aluguel.idLocador = req.body.idLocador;
+            aluguel.dataVencimento = req.body.dataVencimento;
             let ok = await aluguel.gravar();
             if(ok){
                 res.status(200).json({message:"Aluguel gravado com sucesso."});
@@ -97,6 +98,8 @@ class AluguelController{
             aluguel.valorAluguel = req.body.valorAluguel;
             aluguel.quitada = req.body.quitada;
             aluguel.idLocador = req.body.idLocador;
+            aluguel.idLocatario = req.body.idLocatario;
+            aluguel.dataVencimento = req.body.dataVencimento;
             let ok = await aluguel.gravar();
             if(ok){
                 res.status(200).json({message:"Aluguel alterado com sucesso."});

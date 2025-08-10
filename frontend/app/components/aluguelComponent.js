@@ -87,7 +87,8 @@ export default function AluguelComponent(props) {
             valorAluguel: contratoSelecionado.valorParcela,
             quitada: contratoSelecionado.quitada,
             idLocatario: contratoSelecionado.idLocatario,
-            idLocador: contratoSelecionado.idLocador
+            idLocador: contratoSelecionado.idLocador,
+            dataVencimento: contratoSelecionado.dataVencimento
         })
             .then(r => {
                 status = r.status;
