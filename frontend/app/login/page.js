@@ -1,32 +1,27 @@
 'use client';
-
-import { useContext, useRef } from "react";
+import { useRef } from "react";
 import httpClient from "../utils/httpClient";
 
 export default function Login() {
   const login = useRef('');
   const senha = useRef('');
 
+  function autenticar(event) {
+    event.preventDefault(); // previne reload da página no submit
 
-  function autenticar() {
-    let status = 0;
-    if (login.current.value != '' && senha.current.value != '') {
+    if (login.current.value !== '' && senha.current.value !== '') {
       httpClient.post('/usuarios/autenticar', {
         login: login.current.value,
         senha: senha.current.value
       }).then(r => {
-        status = r.status;
-        return r.json();
-      })
-      .then(r=>{
-        if(status == 200){
-          alert('Usuario autenticado');
+        if (r.status === 200) {
           window.location.href = '/admin';
-        }else{
+        } else {
           alert('Usuário ou senha inválidos');
         }
-      })
-    }else{
+        return r.json();
+      });
+    } else {
       alert('Verifique se os campos estão preenchidos!');
     }
   }
@@ -54,7 +49,7 @@ export default function Login() {
           <h3 className="fw-bold" style={{ color: '#333' }}>Bem-vindo de volta!</h3>
           <p className="text-muted">Faça login para continuar</p>
         </div>
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={autenticar}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-semibold">Usuário</label>
             <input
@@ -79,12 +74,7 @@ export default function Login() {
               style={{ fontSize: '1rem' }}
             />
           </div>
-          <button
-            onClick={autenticar}
-            type="button"
-            className="btn btn-primary w-100 fw-bold"
-            style={{ fontSize: '1.1rem', padding: '10px' }}
-          >
+          <button type="submit" className="btn btn-primary w-100 fw-bold" style={{ fontSize: '1.1rem', padding: '10px' }}>
             Entrar
           </button>
         </form>

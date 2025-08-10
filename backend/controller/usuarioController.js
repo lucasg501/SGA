@@ -1,4 +1,3 @@
-console.log('JWT_SECRET no controller:', process.env.JWT_SECRET);
 const UsuarioModel = require('../model/usuarioModel');
 const jwt = require('jsonwebtoken');
 
