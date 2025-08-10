@@ -1,92 +1,82 @@
-CREATE SCHEMA IF NOT EXISTS aluguel;
-USE aluguel;
+DROP TABLE IF EXISTS `aluguel`;
+CREATE TABLE `aluguel` (
+  `idAluguel` int NOT NULL AUTO_INCREMENT,
+  `valorAluguel` decimal(10,2) NOT NULL,
+  `quitada` enum('S','N') DEFAULT NULL,
+  `idContrato` int DEFAULT NULL,
+  `idLocador` int DEFAULT NULL,
+  `idLocatario` int DEFAULT NULL,
+  `dataVencimento` date DEFAULT NULL,
+  PRIMARY KEY (`idAluguel`),
+  KEY `idContrato` (`idContrato`),
+  CONSTRAINT `aluguel_ibfk_1` FOREIGN KEY (`idContrato`) REFERENCES `contrato` (`idContrato`)
+) ENGINE=InnoDB AUTO_INCREMENT=149 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE locador (
-  idLocador INT NOT NULL AUTO_INCREMENT,
-  nomeLocador VARCHAR(245) NOT NULL,
-  cpfLocador VARCHAR(15) NOT NULL,
-  PRIMARY KEY (idLocador)
-);
+DROP TABLE IF EXISTS `contrato`;
+CREATE TABLE `contrato` (
+  `idContrato` int NOT NULL AUTO_INCREMENT,
+  `idImovel` int DEFAULT NULL,
+  `idLocatario` int DEFAULT NULL,
+  `idLocador` int DEFAULT NULL,
+  `qtdParcelas` int NOT NULL,
+  `valorParcela` decimal(10,2) NOT NULL,
+  `dataVencimento` date DEFAULT NULL,
+  PRIMARY KEY (`idContrato`),
+  KEY `idImovel` (`idImovel`),
+  KEY `idLocatario` (`idLocatario`),
+  KEY `idLocador` (`idLocador`),
+  CONSTRAINT `contrato_ibfk_1` FOREIGN KEY (`idImovel`) REFERENCES `imovel` (`idImovel`),
+  CONSTRAINT `contrato_ibfk_2` FOREIGN KEY (`idLocatario`) REFERENCES `locatario` (`idLocatario`),
+  CONSTRAINT `contrato_ibfk_3` FOREIGN KEY (`idLocador`) REFERENCES `locador` (`idLocador`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE locatario (
-  idLocatario INT NOT NULL AUTO_INCREMENT,
-  nomeLocatario VARCHAR(245) NOT NULL,
-  cpfLocatario VARCHAR(15) NOT NULL,
-  PRIMARY KEY (idLocatario)
-);
+DROP TABLE IF EXISTS `imovel`;
+CREATE TABLE `imovel` (
+  `idImovel` int NOT NULL AUTO_INCREMENT,
+  `refImovel` varchar(50) NOT NULL,
+  `valorAluguel` decimal(10,2) NOT NULL,
+  `idLocatario` int DEFAULT NULL,
+  `idLocador` int DEFAULT NULL,
+  PRIMARY KEY (`idImovel`),
+  KEY `idLocatario` (`idLocatario`),
+  KEY `idLocador` (`idLocador`),
+  CONSTRAINT `imovel_ibfk_1` FOREIGN KEY (`idLocatario`) REFERENCES `locatario` (`idLocatario`),
+  CONSTRAINT `imovel_ibfk_2` FOREIGN KEY (`idLocador`) REFERENCES `locador` (`idLocador`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE imovel (
-  idImovel INT NOT NULL AUTO_INCREMENT,
-  refImovel VARCHAR(50) NOT NULL,
-  valorAluguel DOUBLE(10,2) NOT NULL,
-  idLocatario INT DEFAULT NULL,
-  idLocador INT DEFAULT NULL,
-  PRIMARY KEY (idImovel),
-  KEY idLocatario (idLocatario),
-  KEY idLocador (idLocador),
-  CONSTRAINT imovel_ibfk_1 FOREIGN KEY (idLocatario) REFERENCES locatario (idLocatario),
-  CONSTRAINT imovel_ibfk_2 FOREIGN KEY (idLocador) REFERENCES locador (idLocador)
-);
+DROP TABLE IF EXISTS `locador`;
+CREATE TABLE `locador` (
+  `idLocador` int NOT NULL AUTO_INCREMENT,
+  `nomeLocador` varchar(245) NOT NULL,
+  `cpfLocador` varchar(15) NOT NULL,
+  PRIMARY KEY (`idLocador`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE contrato (
-  idContrato INT NOT NULL AUTO_INCREMENT,
-  idImovel INT DEFAULT NULL,
-  idLocatario INT DEFAULT NULL,
-  idLocador INT DEFAULT NULL,
-  qtdParcelas INT NOT NULL,
-  valorParcela DOUBLE(10,2) NOT NULL,
-  PRIMARY KEY (idContrato),
-  KEY idImovel (idImovel),
-  KEY idLocatario (idLocatario),
-  KEY idLocador (idLocador),
-  CONSTRAINT contrato_ibfk_1 FOREIGN KEY (idImovel) REFERENCES imovel (idImovel),
-  CONSTRAINT contrato_ibfk_2 FOREIGN KEY (idLocatario) REFERENCES locatario (idLocatario),
-  CONSTRAINT contrato_ibfk_3 FOREIGN KEY (idLocador) REFERENCES locador (idLocador)
-);
+DROP TABLE IF EXISTS `locatario`;
+CREATE TABLE `locatario` (
+  `idLocatario` int NOT NULL AUTO_INCREMENT,
+  `nomeLocatario` varchar(245) NOT NULL,
+  `cpfLocatario` varchar(15) NOT NULL,
+  PRIMARY KEY (`idLocatario`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE aluguel (
-  idAluguel INT NOT NULL AUTO_INCREMENT,
-  valorAluguel DOUBLE(10,2) NOT NULL,
-  quitada ENUM('S','N') DEFAULT NULL,
-  idContrato INT DEFAULT NULL,
-  idLocador INT DEFAULT NULL,
-  PRIMARY KEY (idAluguel),
-  KEY idContrato (idContrato),
-  CONSTRAINT aluguel_ibfk_1 FOREIGN KEY (idContrato) REFERENCES contrato (idContrato)
-);
+DROP TABLE IF EXISTS `tipospix`;
+CREATE TABLE `tipospix` (
+  `idTipoPix` int NOT NULL AUTO_INCREMENT,
+  `nomeTipo` varchar(20) NOT NULL,
+  PRIMARY KEY (`idTipoPix`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE usuario (
-  idUsuario INT NOT NULL AUTO_INCREMENT,
-  login VARCHAR(20) NOT NULL,
-  senha VARCHAR(20) NOT NULL,
-  chavePix VARCHAR(100) DEFAULT NULL,
-  nomePix VARCHAR(100) DEFAULT NULL,
-  cidade VARCHAR(25) NOT NULL,
-  PRIMARY KEY (idUsuario)
-);
-
-
-ALTER TABLE imovel
-MODIFY COLUMN valorAluguel DECIMAL(10,2) NOT NULL;
-
-ALTER TABLE contrato
-MODIFY COLUMN valorParcela DECIMAL(10,2) NOT NULL;
-
-ALTER TABLE aluguel
-MODIFY COLUMN valorAluguel DECIMAL(10,2) NOT NULL;
-
-
-ALTER TABLE usuario ADD COLUMN tipoPix INT;
-
-ALTER TABLE usuario ADD CONSTRAINT fk_tipoPix FOREIGN KEY (tipoPix) REFERENCES tiposPix(idTipoPix);
-
-
-create table tiposPix(
-	idTipoPix int not null primary key auto_increment,
-    nomeTipo varchar(20) not null
-);
-
-insert into tiposPix (nomeTipo) values ('Telefone');
-insert into tiposPix (nomeTipo) values ('E-mail');
-insert into tiposPix (nomeTipo) values ('CPF');
-insert into tiposPix (nomeTipo) values ('CNPJ');
+DROP TABLE IF EXISTS `usuario`;
+CREATE TABLE `usuario` (
+  `idUsuario` int NOT NULL AUTO_INCREMENT,
+  `login` varchar(20) NOT NULL,
+  `senha` varchar(20) NOT NULL,
+  `chavePix` varchar(100) DEFAULT NULL,
+  `nomePix` varchar(100) DEFAULT NULL,
+  `cidade` varchar(25) NOT NULL,
+  `tipoPix` int DEFAULT NULL,
+  PRIMARY KEY (`idUsuario`),
+  KEY `fk_tipoPix` (`tipoPix`),
+  CONSTRAINT `fk_tipoPix` FOREIGN KEY (`tipoPix`) REFERENCES `tipospix` (`idTipoPix`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

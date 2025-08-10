@@ -161,81 +161,62 @@ export default function chaveComponent(props) {
         }
     }
 
-    function gravarChave() {
-        if (!validarChavePix()) return;
+function gravarChave() {
+    if (!validarChavePix()) return;
 
-        let chaveLimpa = limparMascara(chave.chavePix);
-        if (chave.tipoPix === 1) { // Telefone
-            // Adiciona o prefixo +55 antes do número limpo
-            chaveLimpa = '+55' + chaveLimpa;
+    let chaveLimpa = chave.chavePix;
+
+    if (chave.tipoPix === 1) { // Telefone
+        chaveLimpa = '+55' + limparMascara(chave.chavePix);
+    } else if (chave.tipoPix === 3 || chave.tipoPix === 4) { // CPF ou CNPJ
+        chaveLimpa = limparMascara(chave.chavePix);
+    }
+
+    httpClient.post('/usuarios/gravarChave', {
+        idUsuario: chave.idUsuario,
+        chavePix: chaveLimpa,
+        nomePix: chave.nomePix,
+        cidade: chave.cidade,
+        tipoPix: chave.tipoPix
+    })
+    .then(r => {
+        if (r.status === 200) {
+            alert('Chave PIX gravada com sucesso.');
+        } else {
+            alert('Erro ao gravar chave PIX.');
         }
+        return r.json();
+    });
+}
 
-        httpClient.post('/usuarios/gravarChave', {
-            idUsuario: chave.idUsuario,
-            chavePix: chaveLimpa,
-            nomePix: chave.nomePix,
-            cidade: chave.cidade,
-            tipoPix: chave.tipoPix
-        })
-            .then(r => {
-                if (r.status === 200) {
-                    alert('Chave PIX gravada com sucesso.');
-                } else {
-                    alert('Erro ao gravar chave PIX.');
-                }
-                return r.json();
-            });
+function alterarChave() {
+    if (!validarChavePix()) return;
+
+    let chaveLimpa = chave.chavePix;
+
+    if (chave.tipoPix === 1) { // Telefone
+        chaveLimpa = '+55' + limparMascara(chave.chavePix);
+    } else if (chave.tipoPix === 3 || chave.tipoPix === 4) { // CPF ou CNPJ
+        chaveLimpa = limparMascara(chave.chavePix);
     }
 
-    function alterarChave() {
-        if (!validarChavePix()) return;
-
-        let chaveLimpa = limparMascara(chave.chavePix);
-        if (chave.tipoPix === 1) { // Telefone
-            chaveLimpa = '+55' + chaveLimpa;
+    httpClient.post('/usuarios/gravarChave', {
+        idUsuario: chave.idUsuario,
+        chavePix: chaveLimpa,
+        nomePix: chave.nomePix,
+        cidade: chave.cidade,
+        tipoPix: chave.tipoPix
+    })
+    .then(r => {
+        if (r.status === 200) {
+            alert('Chave PIX alterada com sucesso.');
+            window.location = '/admin/chave';
+        } else {
+            alert('Erro ao alterar chave PIX.');
         }
-
-        httpClient.post('/usuarios/gravarChave', {
-            idUsuario: chave.idUsuario,
-            chavePix: chaveLimpa,
-            nomePix: chave.nomePix,
-            cidade: chave.cidade,
-            tipoPix: chave.tipoPix
-        })
-            .then(r => {
-                if (r.status === 200) {
-                    alert('Chave PIX alterada com sucesso.');
-                    window.location = '/admin/chave';
-                } else {
-                    alert('Erro ao alterar chave PIX.');
-                }
-                return r.json();
-            });
-    }
-
-
-    function alterarChave() {
-        if (!validarChavePix()) return;
-
-        const chaveLimpa = limparMascara(chave.chavePix);
-
-        httpClient.post('/usuarios/gravarChave', {
-            idUsuario: chave.idUsuario,
-            chavePix: chaveLimpa,
-            nomePix: chave.nomePix,
-            cidade: chave.cidade,
-            tipoPix: chave.tipoPix
-        })
-            .then(r => {
-                if (r.status === 200) {
-                    alert('Chave PIX alterada com sucesso.');
-                    window.location = '/admin/chave';
-                } else {
-                    alert('Erro ao alterar chave PIX.');
-                }
-                return r.json();
-            });
-    }
+        return r.json();
+    });
+}
 
     function listarTipos() {
         httpClient.get('/tiposPix/listar')
