@@ -9,6 +9,7 @@ const aluguelRoute = require('./route/aluguelRoute');
 const imovelRoute = require('./route/imovelRoute');
 const locadorRoute = require('./route/locadorRoute');
 const locatarioRoute = require('./route/locatarioRoute');
+const tiposPixRoute = require('./route/tiposPixRoute');
 
 const cors = require('cors');
 
@@ -24,6 +25,7 @@ app.use('/aluguel', aluguelRoute);
 app.use('/imovel', imovelRoute);
 app.use('/locador', locadorRoute);
 app.use('/locatario', locatarioRoute);
+app.use('/tiposPix', tiposPixRoute);
 
 app.listen(porta, () =>{
     console.log(`Servidor rodando na porta ${porta}`);

@@ -74,3 +74,19 @@ MODIFY COLUMN valorParcela DECIMAL(10,2) NOT NULL;
 
 ALTER TABLE aluguel
 MODIFY COLUMN valorAluguel DECIMAL(10,2) NOT NULL;
+
+
+ALTER TABLE usuario ADD COLUMN tipoPix INT;
+
+ALTER TABLE usuario ADD CONSTRAINT fk_tipoPix FOREIGN KEY (tipoPix) REFERENCES tiposPix(idTipoPix);
+
+
+create table tiposPix(
+	idTipoPix int not null primary key auto_increment,
+    nomeTipo varchar(20) not null
+);
+
+insert into tiposPix (nomeTipo) values ('Telefone');
+insert into tiposPix (nomeTipo) values ('E-mail');
+insert into tiposPix (nomeTipo) values ('CPF');
+insert into tiposPix (nomeTipo) values ('CNPJ');

@@ -526,6 +526,44 @@
           }
         }
       }
+    },
+    "/tiposPix/listar": {
+      "get": {
+        "tags": [
+          "TiposPix"
+        ],
+        "summary": "Lista os tiposPix cadastrados",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/tiposPix/obter/idTipo/{idTipo}": {
+      "get": {
+        "tags": [
+          "TiposPix"
+        ],
+        "summary": "Obtem um tiposPix cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idTipo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -556,6 +594,10 @@
           "cidade": {
             "type": "string",
             "example": "rio de janeiro"
+          },
+          "tipoPix": {
+            "type": "number",
+            "example": 1
           }
         }
       },
@@ -680,6 +722,19 @@
           "cpfLocatario": {
             "type": "string",
             "example": "Rodolfinho"
+          }
+        }
+      },
+      "tiposPix": {
+        "type": "object",
+        "properties": {
+          "idTipo": {
+            "type": "number",
+            "example": 1
+          },
+          "nomeTipo": {
+            "type": "string",
+            "example": "Telefone"
           }
         }
       }

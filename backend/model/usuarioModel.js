@@ -8,6 +8,7 @@ class UsuarioModel {
     #chavePix;
     #nomePix;
     #cidade;
+    #tipoPix;
 
     get idUsuario() { return this.#idUsuario } set idUsuario(idUsuario) { this.#idUsuario = idUsuario }
     get login() { return this.#login } set login(login) { this.#login = login }
@@ -15,14 +16,16 @@ class UsuarioModel {
     get chavePix() { return this.#chavePix } set chavePix(chavePix) { this.#chavePix = chavePix }
     get nomePix() { return this.#nomePix } set nomePix(nomePix) { this.#nomePix = nomePix }
     get cidade() { return this.#cidade } set cidade(cidade) { this.#cidade = cidade }
+    get tipoPix() { return this.#tipoPix } set tipoPix(tipoPix) { this.#tipoPix = tipoPix }
 
-    constructor(idUsuario, login, senha, chavePix, nomePix, cidade) {
+    constructor(idUsuario, login, senha, chavePix, nomePix, cidade, tipoPix) {
         this.#idUsuario = idUsuario;
         this.#login = login;
         this.#senha = senha;
         this.#chavePix = chavePix;
         this.#nomePix = nomePix;
         this.#cidade = cidade;
+        this.#tipoPix = tipoPix;
     }
 
     toJSON() {
@@ -32,13 +35,14 @@ class UsuarioModel {
             'senha': this.#senha,
             'chavePix': this.#chavePix,
             'nomePix': this.#nomePix,
-            'cidade': this.#cidade
+            'cidade': this.#cidade,
+            'tipoPix': this.#tipoPix
         }
     }
 
-    async gravarChave(chavePix, nomePix, cidade) {
-        let sql = "UPDATE usuario SET chavePix = ?, nomePix = ?, cidade = ? WHERE idUsuario = 1";
-        let valores = [chavePix, nomePix, cidade];
+    async gravarChave(chavePix, nomePix, cidade, tipoPix) {
+        let sql = "UPDATE usuario SET chavePix = ?, nomePix = ?, cidade = ?, tipoPix = ? WHERE idUsuario = 1";
+        let valores = [chavePix, nomePix, cidade, tipoPix];
         let ok = await banco.ExecutaComandoNonQuery(sql, valores);
         return ok;
     }
@@ -48,7 +52,7 @@ class UsuarioModel {
         let rows = await banco.ExecutaComando(sql);
         let lista = [];
         if(rows.length > 0){
-            lista.push(new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade']));
+            lista.push(new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade'], rows[0]['tipoPix']));
         }
         return lista;
     }
@@ -58,7 +62,7 @@ class UsuarioModel {
         let valores = [login, senha];
         let rows = await banco.ExecutaComando(sql, valores);
         if (rows.length > 0)
-            return new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade']);
+            return new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade'], rows[0]['tipoPix']);
         else
             return null;
     }
@@ -68,7 +72,7 @@ class UsuarioModel {
         let valores = [idUsuario];
         let rows = await banco.ExecutaComando(sql, valores);
         if(rows.length > 0){
-            let usuario = new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade']);
+            let usuario = new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade'], rows[0]['tipoPix']);
             return usuario;
         }else{
             return null;

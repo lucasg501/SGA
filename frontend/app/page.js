@@ -85,9 +85,10 @@ export default function Home() {
 
   function gerarPayloadPix(
     valor,
-    chavePix = dadosPix?.chavePix ? (dadosPix.chavePix.startsWith('+') ? dadosPix.chavePix : '+' + dadosPix.chavePix) : "+5518996570042",
+    chavePix = dadosPix?.chavePix ? (dadosPix.chavePix.startsWith('+') ? dadosPix.chavePix : '+55' + dadosPix.chavePix) : "+5518996570042",
     nomeRecebedor = dadosPix?.nomePix || "LUCAS GOIS"
   ) {
+    console.log(chavePix, nomeRecebedor);
     const valorFormatado = parseFloat(valor).toFixed(2);
     const cidade = "PRES PRUDENTE";
     const nome = nomeRecebedor.substring(0, 25).toUpperCase();

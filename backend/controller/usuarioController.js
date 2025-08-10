@@ -15,7 +15,8 @@ class UsuarioController {
             usuario.chavePix = req.body.chavePix;
             usuario.nomePix = req.body.nomePix;
             usuario.cidade = req.body.cidade;
-            let ok = await usuario.gravarChave(usuario.chavePix, usuario.nomePix, usuario.cidade);
+            usuario.tipoPix = req.body.tipoPix;
+            let ok = await usuario.gravarChave(usuario.chavePix, usuario.nomePix, usuario.cidade, usuario.tipoPix);
             if (ok)
                 res.status(200).json({ message: "Chave Pix gravada com sucesso." });
             else
