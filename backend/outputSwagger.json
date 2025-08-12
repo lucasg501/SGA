@@ -365,6 +365,30 @@
         }
       }
     },
+    "/aluguel/excluir/{idContrato}": {
+      "delete": {
+        "tags": [
+          "Alugueis"
+        ],
+        "summary": "Exclui um aluguel",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idContrato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/imovel/listar": {
       "get": {
         "tags": [

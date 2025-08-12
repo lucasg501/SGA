@@ -117,7 +117,7 @@ export default function ContratoComponent(props) {
                     alert('Contrato gravado com sucesso.');
                     window.location = '/admin/contratos';
                 } else {
-                    alert('Erro ao gravar contrato.');
+                    alert(r.msg);
                 }
             })
 

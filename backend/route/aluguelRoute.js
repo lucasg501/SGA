@@ -83,4 +83,11 @@ router.post('/marcarPago', (req,res)=>{
     ctrl.marcarPago(req,res);
 });
 
+router.delete('/excluir/:idContrato', (req,res) =>{
+    // #swagger.tags = ['Alugueis']
+    // #swagger.summary = 'Exclui um aluguel'
+
+    ctrl.excluir(req,res);
+})
+
 module.exports = router;

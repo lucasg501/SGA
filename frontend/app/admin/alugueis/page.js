@@ -166,6 +166,27 @@ export default function Alugueis() {
             .toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
+    function excluirAluguel(idContrato) {
+        if (confirm("Tem certeza que deseja excluir todas as parcelas?")) {
+            let status = 0;
+            httpClient.delete(`/aluguel/excluir/${idContrato}`)
+                .then(r => {
+                    status = r.status;
+                    return r.json();
+                })
+                .then(r => {
+                    if (status === 200) {
+                        alert(r.msg);
+                        window.location.reload();
+                    } else {
+                        alert(r.msg);
+                    }
+                });
+        } else {
+            alert('Operação cancelada!');
+        }
+    }
+
 
     return (
         <div>
@@ -200,6 +221,15 @@ export default function Alugueis() {
                                 </select>
                             </div>
 
+                            {contratoSelecionado && (
+                                <button
+                                    onClick={() => excluirAluguel(contratoSelecionado)}
+                                    className="btn btn-danger mt-2"
+                                    type="button"
+                                >
+                                    Excluir Parcelas do Contrato {contratoSelecionado}
+                                </button>
+                            )}
                         </div>
 
                         {contratoSelecionado && alugueisPorContrato[contratoSelecionado] && (
@@ -223,7 +253,17 @@ export default function Alugueis() {
                                             <td>{aluguel.quitada === 'S' ? "Sim" : "Não"}</td>
                                             <td>{procurarNomeLocador(aluguel.idLocador)}</td>
                                             <td>{procurarNomeLocatario(aluguel.idLocatario)}</td>
-                                            <td>{formatarData(aluguel.dataVencimento)}</td>
+                                            <td
+                                                style={{
+                                                    color:
+                                                        aluguel.quitada.toLowerCase() === 'n' && new Date(aluguel.dataVencimento) < new Date()
+                                                            ? 'red'
+                                                            : 'inherit',
+                                                }}
+                                            >
+                                                {formatarData(aluguel.dataVencimento)}
+                                                {aluguel.quitada.toLowerCase() === 'n' && new Date(aluguel.dataVencimento) < new Date() ? ' - Atrasado' : ''}
+                                            </td>
                                             <td>
                                                 {aluguel.quitada === "N" ? (
                                                     <button onClick={() => quitarFatura(aluguel.idAluguel)} className="btn btn-success">
@@ -242,6 +282,7 @@ export default function Alugueis() {
                         )}
                     </>
                 )}
+
             </div>
         </div>
     );

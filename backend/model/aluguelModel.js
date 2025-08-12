@@ -26,7 +26,7 @@ class AluguelModel {
         this.#idContrato = idContrato;
         this.#idLocador = idLocador;
         this.#idLocatario = idLocatario,
-        this.#dataVencimento = dataVencimento
+            this.#dataVencimento = dataVencimento
     }
 
     toJSON() {
@@ -97,11 +97,19 @@ class AluguelModel {
         let qtdParcelas = dados[0].qtdParcelas;
 
         if (this.#idAluguel == 0) {
+            // Verifica se já existem alugueis para esse contrato
+            let sqlVerificaAluguel = `SELECT COUNT(*) as total FROM aluguel WHERE idContrato = ?`;
+            let resAluguel = await banco.ExecutaComando(sqlVerificaAluguel, [this.#idContrato]);
+
+            if (resAluguel.length > 0 && resAluguel[0].total > 0) {
+                // Já existem alugueis para esse contrato, bloqueia inserção
+                return false;
+            }
+
             let ok = true;
             let dataVencimentoAtual = new Date(this.#dataVencimento);
             for (let i = 0; i < qtdParcelas; i++) {
-                let sql = ` INSERT INTO aluguel  (valorAluguel, quitada, idContrato, idLocador, idLocatario, dataVencimento) VALUES (?, ?, ?, ?, ?, ?)`;
-                // Formata a data no padrão YYYY-MM-DD para o banco
+                let sql = `INSERT INTO aluguel (valorAluguel, quitada, idContrato, idLocador, idLocatario, dataVencimento) VALUES (?, ?, ?, ?, ?, ?)`;
                 let dataFormatada = dataVencimentoAtual.toISOString().split('T')[0];
 
                 let valores = [
@@ -119,13 +127,12 @@ class AluguelModel {
                     ok = false;
                 }
 
-                // Incrementa 1 mês para a próxima parcela
                 dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
             }
 
             return ok;
         } else {
-            let sql = ` UPDATE aluguel  SET valorAluguel = ?, quitada = ?, idContrato = ?, idLocador = ?, idLocatario = ?, dataVencimento = ? WHERE idAluguel = ?`;
+            let sql = `UPDATE aluguel SET valorAluguel = ?, quitada = ?, idContrato = ?, idLocador = ?, idLocatario = ?, dataVencimento = ? WHERE idAluguel = ?`;
             let valores = [
                 this.#valorAluguel,
                 this.#quitada,
@@ -140,6 +147,7 @@ class AluguelModel {
             return ok;
         }
     }
+
 
     async obterAlugueis(cpfLocatario) {
         const locatarioModel = new LocatarioModel();
@@ -175,7 +183,14 @@ class AluguelModel {
         return lista;
     }
 
-
+    async excluir(idContrato) {
+        if(idContrato > 0){
+            let sql = "delete from aluguel where idContrato = ?";
+            let valores = [idContrato];
+            let ok = await banco.ExecutaComandoNonQuery(sql, valores);
+            return ok;
+        }
+    }
 
 }
 

@@ -99,7 +99,7 @@ export default function AluguelComponent(props) {
                     alert('Aluguel gerado com sucesso!');
                     window.location = '/admin/alugueis';
                 } else {
-                    alert('Erro ao gerar aluguel!');
+                    alert(r.msg);
                 }
             })
     }

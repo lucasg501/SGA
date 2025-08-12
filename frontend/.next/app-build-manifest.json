@@ -6,16 +6,6 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
-    ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
-    ],
     "/admin/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -27,15 +17,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/page.js"
     ],
-    "/admin/chave/page": [
+    "/admin/alugueis/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/chave/page.js"
+      "static/chunks/app/admin/alugueis/page.js"
     ],
-    "/admin/chave/alterar/[idUsuario]/page": [
+    "/admin/alugueis/gravar/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/chave/alterar/[idUsuario]/page.js"
+      "static/chunks/app/admin/alugueis/gravar/page.js"
     ],
     "/admin/contratos/page": [
       "static/chunks/webpack.js",
@@ -47,15 +37,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/contratos/gravar/page.js"
     ],
-    "/admin/alugueis/page": [
+    "/admin/chave/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/alugueis/page.js"
+      "static/chunks/app/admin/chave/page.js"
     ],
-    "/admin/alugueis/gravar/page": [
+    "/admin/contratos/alterar/[idContrato]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/alugueis/gravar/page.js"
+      "static/chunks/app/admin/contratos/alterar/[idContrato]/page.js"
+    ],
+    "/admin/chave/alterar/[idUsuario]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/chave/alterar/[idUsuario]/page.js"
+    ],
+    "/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/login/page.js"
     ]
   }
 }

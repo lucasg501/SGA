@@ -20,10 +20,10 @@ class AluguelController {
             if (aluguel != null) {
                 res.status(200).json(aluguel);
             } else {
-                res.status(500).json({ message: "Erro ao obter aluguel." });
+                res.status(500).json({ msg: "Erro ao obter aluguel." });
             }
         } else {
-            res.status(400).json({ message: "Parâmetros inválidos." });
+            res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
@@ -34,10 +34,10 @@ class AluguelController {
             if (aluguel != null) {
                 res.status(200).json(aluguel);
             } else {
-                res.status(500).json({ message: "Erro ao obter aluguel." });
+                res.status(500).json({ msg: "Erro ao obter aluguel." });
             }
         } else {
-            res.status(400).json({ message: "Parâmetros inválidos." });
+            res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
@@ -49,13 +49,13 @@ class AluguelController {
                 if (aluguel != null) {
                     res.status(200).json(aluguel);
                 } else {
-                    res.status(500).json({ message: "Erro ao obter aluguel." });
+                    res.status(500).json({ msg: "Erro ao obter aluguel." });
                 }
             } else {
-                res.status(400).json({ message: "Parâmetros inválidos." });
+                res.status(400).json({ msg: "Parâmetros inválidos." });
             }
         } catch (e) {
-            res.status(500).json({ message: "Erro ao obter aluguel." });
+            res.status(500).json({ msg: "Erro ao obter aluguel." });
         }
     }
 
@@ -64,12 +64,12 @@ class AluguelController {
             let aluguel = new AluguelModel();
             let ok = await aluguel.marcarQuitada(req.body.idAluguel);
             if (ok) {
-                res.status(200).json({ message: "Aluguel quitado com sucesso." });
+                res.status(200).json({ msg: "Aluguel quitado com sucesso." });
             } else {
-                res.status(500).json({ message: "Erro ao marcar quitado." });
+                res.status(500).json({ msg: "Erro ao marcar quitado." });
             }
         } else {
-            res.status(400).json({ message: "Parâmetros inválidos." });
+            res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
@@ -84,13 +84,15 @@ class AluguelController {
             aluguel.idLocador = req.body.idLocador;
             aluguel.dataVencimento = req.body.dataVencimento;
             let ok = await aluguel.gravar();
-            if (ok) {
-                res.status(200).json({ message: "Aluguel gravado com sucesso." });
+            if (ok === true) {
+                res.status(200).json({ msg: "Aluguel gravado com sucesso." });
+            } else if (ok === false) {
+                res.status(400).json({ msg: "Aluguel ja existente." });
             } else {
-                res.status(500).json({ message: "Erro ao gravar aluguel." });
+                res.status(500).json({ msg: "Erro ao gravar aluguel." });
             }
         } else {
-            res.status(400).json({ message: "Parâmetros inválidos." });
+            res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
@@ -106,12 +108,26 @@ class AluguelController {
             aluguel.dataVencimento = req.body.dataVencimento;
             let ok = await aluguel.gravar();
             if (ok) {
-                res.status(200).json({ message: "Aluguel alterado com sucesso." });
+                res.status(200).json({ msg: "Aluguel alterado com sucesso." });
             } else {
-                res.status(500).json({ message: "Erro ao alterar aluguel." });
+                res.status(500).json({ msg: "Erro ao alterar aluguel." });
             }
         } else {
-            res.status(400).json({ message: "Parâmetros inválidos." });
+            res.status(400).json({ msg: "Parâmetros inválidos." });
+        }
+    }
+
+    async excluir(req,res){
+        if(req.params.idContrato != null){
+            let aluguel = new AluguelModel();
+            let ok = await aluguel.excluir(req.params.idContrato);
+            if(ok){
+                res.status(200).json({msg:"Aluguel excluido com sucesso."});
+            }else{
+                res.status(500).json({msg:"Erro ao excluir aluguel."});
+            }
+        }else{
+            res.status(400).json({msg:"Parâmetros inválidos."});
         }
     }
 
