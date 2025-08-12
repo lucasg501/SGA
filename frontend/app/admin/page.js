@@ -2,11 +2,22 @@
 import React, { useEffect, useState } from 'react';
 import httpClient from '../utils/httpClient';
 
+import { Pie } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
 export default function AdminLayout({ children }) {
   const [listaAlugueis, setListaAlugueis] = useState([]);
   const [listaContratos, setListaContratos] = useState([]);
   const [listaImoveis, setListaImoveis] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
+  const [graficoAberto, setGraficoAberto] = useState(true);
 
   function listarContratos() {
     httpClient.get('/contratos/listar')
@@ -65,12 +76,10 @@ export default function AdminLayout({ children }) {
     return `${dia}/${mes}/${ano}`;
   }
 
-  // Data atual para filtro mês/ano
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
-  // Filtra aluguéis deste mês (mes e ano do vencimento igual ao atual)
   const alugueisDoMes = listaAlugueis.filter(a => {
     const dataVenc = new Date(a.dataVencimento);
     return (
@@ -79,22 +88,50 @@ export default function AdminLayout({ children }) {
     );
   });
 
-  // Filtra atrasados (vencidos e não quitados)
   const alugueisAtrasados = listaAlugueis.filter(a =>
     new Date(a.dataVencimento) < hoje &&
     a.quitada.toLowerCase() !== 's'
   );
 
-  // Notificação só 1x por dia para atrasados
+  const totalPagos = listaAlugueis.filter(a => a.quitada.toLowerCase() === 's').length;
+
+  const alugueisVencidos = alugueisDoMes.filter(a =>
+    new Date(a.dataVencimento) < hoje &&
+    a.quitada.toLowerCase() !== 's'
+  ).length;
+
+  const alugueisEmAberto = alugueisDoMes.filter(a =>
+    new Date(a.dataVencimento) >= hoje &&
+    a.quitada.toLowerCase() !== 's'
+  ).length;
+
+  const dataPie = {
+    labels: ['Vencidos', 'Em aberto'],
+    datasets: [
+      {
+        label: 'Aluguéis',
+        data: [alugueisVencidos, alugueisEmAberto],
+        backgroundColor: [
+          'rgba(220, 53, 69, 0.7)',  // vermelho - vencidos
+          'rgba(54, 162, 235, 0.7)', // azul - em aberto
+        ],
+        borderColor: [
+          'rgba(220, 53, 69, 1)',
+          'rgba(54, 162, 235, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
   useEffect(() => {
     if (alugueisAtrasados.length === 0) return;
 
     const hojeStr = new Date().toISOString().split('T')[0];
     const ultimaNotificacao = localStorage.getItem('ultimaNotificacao');
 
-    if (ultimaNotificacao === hojeStr) return; // Já notificou hoje
+    if (ultimaNotificacao === hojeStr) return;
 
-    // Função para disparar a notificação
     const enviarNotificacao = () => {
       if (!("Notification" in window)) {
         console.log("Este navegador não suporta notificações.");
@@ -124,7 +161,6 @@ export default function AdminLayout({ children }) {
 
   }, [alugueisAtrasados]);
 
-
   useEffect(() => {
     listarAlugueis();
     listarContratos();
@@ -134,6 +170,28 @@ export default function AdminLayout({ children }) {
   return (
     <div>
       <h1>Aluguéis deste Mês</h1>
+
+      <button
+        onClick={() => setGraficoAberto(!graficoAberto)}
+        style={{
+          marginBottom: '10px',
+          padding: '6px 12px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        {graficoAberto ? 'Minimizar Gráfico' : 'Mostrar Gráfico'}
+      </button>
+
+      {graficoAberto && (
+        <div style={{ maxWidth: '500px', marginBottom: '20px' }}>
+          <h3>Aluguéis Vencidos vs Em Aberto</h3>
+          <Pie data={dataPie} />
+        </div>
+      )}
 
       <div>
         <table className='table table-striped'>
@@ -192,7 +250,6 @@ export default function AdminLayout({ children }) {
         </table>
       </div>
 
-      {/* Dropdown para atrasados */}
       <div style={{ marginTop: '20px' }}>
         <div
           onClick={() => setDropdownAberto(!dropdownAberto)}

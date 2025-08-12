@@ -1,8 +1,4 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/login/page": "app/login/page.js",
-  "/admin/contratos/alterar/[idContrato]/page": "app/admin/contratos/alterar/[idContrato]/page.js",
-  "/admin/chave/page": "app/admin/chave/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/chave/alterar/[idUsuario]/page": "app/admin/chave/alterar/[idUsuario]/page.js"
+  "/admin/page": "app/admin/page.js"
 }

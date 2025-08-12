@@ -16,46 +16,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/page.js"
-    ],
-    "/admin/alugueis/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/alugueis/page.js"
-    ],
-    "/admin/alugueis/gravar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/alugueis/gravar/page.js"
-    ],
-    "/admin/contratos/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/page.js"
-    ],
-    "/admin/contratos/gravar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/gravar/page.js"
-    ],
-    "/admin/chave/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/chave/page.js"
-    ],
-    "/admin/contratos/alterar/[idContrato]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/alterar/[idContrato]/page.js"
-    ],
-    "/admin/chave/alterar/[idUsuario]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/chave/alterar/[idUsuario]/page.js"
-    ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
     ]
   }
 }
