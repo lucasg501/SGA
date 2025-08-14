@@ -6,6 +6,11 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
     "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -22,35 +27,35 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/page.js"
     ],
-    "/admin/contratos/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/page.js"
-    ],
-    "/admin/contratos/gravar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/gravar/page.js"
-    ],
-    "/admin/contratos/alterar/[idContrato]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/alterar/[idContrato]/page.js"
-    ],
     "/admin/pagamentoAvulso/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/pagamentoAvulso/page.js"
     ],
-    "/admin/pagamentoAvulso/gravar/page": [
+    "/admin/alugueis/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/pagamentoAvulso/gravar/page.js"
+      "static/chunks/app/admin/alugueis/page.js"
+    ],
+    "/admin/contratos/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/contratos/page.js"
     ],
     "/admin/pagamentoAvulso/alterar/[idContrato]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/pagamentoAvulso/alterar/[idContrato]/page.js"
+    ],
+    "/admin/alugueis/gravar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/alugueis/gravar/page.js"
+    ],
+    "/admin/contratos/gravar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/contratos/gravar/page.js"
     ]
   }
 }

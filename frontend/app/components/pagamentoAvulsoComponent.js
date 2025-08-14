@@ -4,7 +4,9 @@ import httpClient from "../utils/httpClient";
 import Link from "next/link";
 
 export default function PagamentoAvulso(props) {
-    const [pagamentoAvulso, setPagamentoAvulso] = useState(props.pagamentoAvulso ? props.pagamentoAvulso : { idPagamento: 0, valorPagamento: '', dataPagamento: '', pago: false, idContrato: 0 });
+    const [pagamentoAvulso, setPagamentoAvulso] = useState(props.pagamentoAvulso ? props.pagamentoAvulso : { 
+        idPagamento: 0, valorPagamento: '', dataPagamento: '', pago: false, idContrato: '' 
+    });
     const valorPagamento = useRef(null);
     const dataPagamento = useRef(null);
     const pago = useRef(null);
@@ -62,7 +64,9 @@ export default function PagamentoAvulso(props) {
             <div>
                 <div className="form-group">
                     <label>Contrato</label>
-                    <select ref={idContrato} className="form-control" defaultValue={pagamentoAvulso.idContrato}>
+                    {
+                        pagamentoAvulso.idContrato == 0 ?
+                        <select ref={idContrato} className="form-control" defaultValue={pagamentoAvulso.idContrato}>
                         <option value={0}>Selecione um contrato</option>
                         {
                             listaContratos.map(function(value,index){
@@ -74,6 +78,20 @@ export default function PagamentoAvulso(props) {
                             })
                         }
                     </select>
+                    :
+                    <select disabled ref={idContrato} className="form-control" defaultValue={pagamentoAvulso.idContrato}>
+                        <option value={0}>Selecione um contrato</option>
+                        {
+                            listaContratos.map(function(value,index){
+                                if(value.idContrato == pagamentoAvulso[0].idContrato){
+                                    return <option value={value.idContrato} selected>{value.idContrato}</option>
+                                }else{
+                                    return <option value={value.idContrato}>{value.idContrato}</option>
+                                }
+                            })
+                        }
+                    </select>
+                    }
                 </div>
                 <div className="form-group">
                     <label>Valor</label>

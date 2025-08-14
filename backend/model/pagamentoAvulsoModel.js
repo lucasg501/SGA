@@ -55,17 +55,26 @@ class PagamentoAvulsoModel {
     }
 
     async obterPorContrato(idContrato) {
-        let sql = `SELECT pa.idPagamento, pa.valorPagamento, pa.dataPagamento, pa.pago, l.nomeLocatario 
-               FROM pagamentoAvulso pa 
-               JOIN contrato c ON pa.idContrato = c.idContrato 
-               JOIN locatario l ON c.idLocatario = l.idLocatario
-               WHERE pa.idContrato = ${idContrato}`;
+        let sql = `
+        SELECT 
+            pa.idPagamento, 
+            pa.idContrato,
+            pa.valorPagamento, 
+            pa.dataPagamento, 
+            pa.pago, 
+            l.nomeLocatario 
+        FROM pagamentoAvulso pa 
+        JOIN contrato c ON pa.idContrato = c.idContrato 
+        JOIN locatario l ON c.idLocatario = l.idLocatario
+        WHERE pa.idContrato = ${idContrato}
+    `;
 
         let rows = await banco.ExecutaComando(sql);
         let lista = [];
         for (let i = 0; i < rows.length; i++) {
             lista.push({
                 idPagamento: rows[i]['idPagamento'],
+                idContrato: rows[i]['idContrato'],
                 valorPagamento: rows[i]['valorPagamento'],
                 dataPagamento: rows[i]['dataPagamento'],
                 pago: rows[i]['pago'],
@@ -75,28 +84,29 @@ class PagamentoAvulsoModel {
         return lista;
     }
 
-    async marcarPago(idPagamento){
+
+    async marcarPago(idPagamento) {
         let sql = "update pagamentoAvulso set pago = 'S' where idPagamento = ?";
         let valores = [idPagamento];
         let ok = await banco.ExecutaComandoNonQuery(sql, valores);
         return ok;
     }
 
-    async excluir(idPagamento){
-        try{
-            if(idPagamento > 0){
+    async excluir(idPagamento) {
+        try {
+            if (idPagamento > 0) {
                 let sql = "delete from pagamentoAvulso where idPagamento = ?";
                 let valores = [idPagamento];
                 let ok = await banco.ExecutaComandoNonQuery(sql, valores);
                 return ok;
             }
-        }catch(e){
+        } catch (e) {
             console.log(e);
             return false;
         }
     }
 
-    async gravar(){
+    async gravar() {
         let sql = "insert into pagamentoAvulso (valorPagamento, dataPagamento, pago, idContrato) values (?, ?, ?, ?)";
         let valores = [this.#valorPagamento, this.#dataPagamento, this.#pago, this.#idContrato];
         let ok = await banco.ExecutaComandoNonQuery(sql, valores);

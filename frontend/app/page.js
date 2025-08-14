@@ -307,9 +307,7 @@ export default function Home() {
                           const dataFormatada = vencimento.toLocaleDateString('pt-BR', {
                             timeZone: 'UTC',
                           });
-
                           const estaAtrasado = vencimento < hoje;
-
                           return (
                             <> {dataFormatada}{' '}{estaAtrasado && (
                                 <span style={{ color: 'red', fontSize: 14, fontWeight: 600 }}>
