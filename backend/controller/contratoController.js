@@ -37,6 +37,8 @@ class ContratoController {
             contrato.qtdParcelas = req.body.qtdParcelas;
             contrato.valorParcela = req.body.valorParcela;
             contrato.dataVencimento = req.body.dataVencimento;
+            contrato.inicioVigenciaContrato = req.body.inicioVigenciaContrato;
+            contrato.fimVigenciaContrato = req.body.fimVigenciaContrato;
             let ok = await contrato.gravar();
             if (ok === true) {
                 res.status(200).json({ msg: "Contrato gravado com sucesso." });
@@ -60,6 +62,8 @@ class ContratoController {
             contrato.qtdParcelas = req.body.qtdParcelas;
             contrato.valorParcela = req.body.valorParcela;
             contrato.dataVencimento = req.body.dataVencimento;
+            contrato.inicioVigenciaContrato = req.body.inicioVigenciaContrato;
+            contrato.fimVigenciaContrato = req.body.fimVigenciaContrato;
             let ok = await contrato.gravar();
             if (ok) {
                 res.status(200).json({ msg: "Contrato alterado com sucesso." });

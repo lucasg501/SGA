@@ -93,7 +93,7 @@ export default function Contratos() {
     function formatarDataVencimento(dataVencimento) {
         if (!dataVencimento) return '';
         const data = new Date(dataVencimento);
-        return data.toLocaleDateString('pt-BR', { day: '2-digit'});
+        return data.toLocaleDateString('pt-BR', { day: '2-digit' });
     }
 
     useEffect(() => {
@@ -124,7 +124,10 @@ export default function Contratos() {
                             <th>Quantidade de Parcelas</th>
                             <th>Valor das Parcelas</th>
                             <th>Vencimento</th>
-                            <th>Ações</th>
+                            <th>Inicio contrato</th>
+                            <th>Fim contrato</th>
+                            <th>Alterar</th>
+                            <th>Pag.Avulso</th>
                         </tr>
                     </thead>
 
@@ -140,9 +143,18 @@ export default function Contratos() {
                                         <td>{value.qtdParcelas}</td>
                                         <td>R${value.valorParcela}</td>
                                         <td>Dia: {formatarDataVencimento(value.dataVencimento)}</td>
+                                        <td>{new Date(value.inicioVigenciaContrato).toLocaleDateString()}</td>
+                                        <td>{new Date(value.fimVigenciaContrato).toLocaleDateString()}</td>
                                         <td>
                                             <Link href={`/admin/contratos/alterar/${value.idContrato}`}>
                                                 <button className="btn btn-primary">Alterar</button>
+                                            </Link>
+                                        </td>
+                                        <td>
+                                            <Link href={`/admin/pagamentoAvulso/alterar/${value.idContrato}`}>
+                                                <button className="btn btn-success">
+                                                    <i class="fas fa-solid fa-coins"></i>
+                                                </button>
                                             </Link>
                                         </td>
                                     </tr>

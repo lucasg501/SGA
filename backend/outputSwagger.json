@@ -588,6 +588,140 @@
           }
         }
       }
+    },
+    "/pagamentoAvulso/listar": {
+      "get": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Lista os pagamentoAvulso cadastrados",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pagamentoAvulso/obter/{idPagamentoAvulso}": {
+      "get": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Obtem um pagamentoAvulso cadastrado",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idPagamentoAvulso",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pagamentoAvulso/obterPorContrato/{idContrato}": {
+      "get": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Obtem um pagamentoAvulso cadastrado por meio do id do contrato",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idContrato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pagamentoAvulso/gravar": {
+      "post": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Adiciona um pagamentoAvulso",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/pagamentoAvulso"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pagamentoAvulso/marcarPago": {
+      "post": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Marca um pagamentoAvulso como quitado",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/pagamentoAvulso"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pagamentoAvulso/excluir/{idPagamentoAvulso}": {
+      "delete": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Exclui um pagamentoAvulso",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idPagamentoAvulso",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -655,6 +789,12 @@
           "dataVencimento": {
             "type": "string",
             "example": "02/14/2025"
+          },
+          "inicioVigenciaContrato": {
+            "type": "undefined"
+          },
+          "fimVigenciaContrato": {
+            "type": "undefined"
           }
         }
       },
@@ -759,6 +899,31 @@
           "nomeTipo": {
             "type": "string",
             "example": "Telefone"
+          }
+        }
+      },
+      "pagamentoAvulso": {
+        "type": "object",
+        "properties": {
+          "idPagamento": {
+            "type": "number",
+            "example": 1
+          },
+          "valorPagamento": {
+            "type": "number",
+            "example": 1000
+          },
+          "dataPagamento": {
+            "type": "string",
+            "example": "2025-08-14"
+          },
+          "pago": {
+            "type": "string",
+            "example": "N"
+          },
+          "idContrato": {
+            "type": "number",
+            "example": 1
           }
         }
       }

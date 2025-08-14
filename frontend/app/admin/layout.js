@@ -62,6 +62,12 @@ function LayoutContent({ children }) {
                         <span>Aluguéis</span>
                     </Link>
                 </li>
+                <li className="nav-item">
+                    <Link className="nav-link" href="/admin/pagamentoAvulso">
+                        <i className="fas fa-solid fa-money-bill"></i>
+                        <span>Pagamento Avulso</span>
+                    </Link>
+                </li>
             </ul>
 
             {/* Topbar + Conteúdo */}

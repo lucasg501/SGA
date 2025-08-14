@@ -8,6 +8,7 @@ const ImovelModel = require('./model/imovelModel');
 const LocadorModel = require('./model/locadorModel');
 const LocatarioModel = require('./model/locatarioModel');
 const TiposPixModel = require('./model/tiposPixModel');
+const PagamentoAvulsoModel = require('./model/pagamentoAvulsoModel');
 
 const doc = {
     info:{
@@ -30,7 +31,8 @@ const doc = {
             imovel: new ImovelModel(0,'AP1010',1000,1,1).toJSON(),
             locador: new LocadorModel(1,'111.111.111-11', 'Alfredo').toJSON(),
             locatario: new LocatarioModel(1,'111.111.111-11', 'Rodolfinho').toJSON(),
-            tiposPix: new TiposPixModel(1,'Telefone').toJSON()
+            tiposPix: new TiposPixModel(1,'Telefone').toJSON(),
+            pagamentoAvulso: new PagamentoAvulsoModel(1,1000,'2025-08-14','N',1).toJSON()
         }
     }
 }

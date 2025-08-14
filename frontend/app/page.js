@@ -243,56 +243,138 @@ export default function Home() {
       )}
 
       {parcelaQRAtiva && (
-        <div
-          onClick={fecharModal}
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              backgroundColor: '#fff',
-              padding: 20,
-              borderRadius: 8,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-              textAlign: 'center',
-              minWidth: 280,
-              position: 'relative',
-            }}
-          >
-            <h3>Parcela #{parcelaQRAtiva.index + 1}</h3>
+        <div onClick={fecharModal} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999, padding: 16, }}>
+          <div role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#f5f7fb', borderRadius: 12, boxShadow: '0 20px 40px rgba(0,0,0,0.25)', width: '90%', maxWidth: 980, maxHeight: '90vh', overflow: 'auto', padding: 24, textAlign: 'left', position: 'relative', border: '1px solid #e5e7eb', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif', }}>
+            {/* Topo simples */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, color: '#111827' }}>Cobrança</h2>
+                <div style={{ color: '#6b7280', fontSize: 13 }}>
+                  Pagamento via Pix • Parcela #{parcelaQRAtiva.index + 1}
+                </div>
+              </div>
+
+              <button className="btn btn-secondary" onClick={fecharModal} aria-label="Fechar" > Fechar </button>
+
+            </div>
 
             {(() => {
-              const valorCorrigido = calcularValorComMulta(parseFloat(parcelaQRAtiva.valorAluguel), parcelaQRAtiva.dataVencimento);
+              const recebedorNome = dadosPix?.nomePix || 'Seu Nome / Empresa';
+              const recebedorChavePix = dadosPix?.chavePix || 'chave@exemplo.com';
+
+              const valorCorrigido = calcularValorComMulta(
+                parseFloat(parcelaQRAtiva.valorAluguel),
+                parcelaQRAtiva.dataVencimento
+              );
+
+              const payloadPix = gerarPayloadPix(valorCorrigido);
+
+              const copiar = async (texto) => {
+                try {
+                  await navigator.clipboard.writeText(texto);
+                } catch { }
+              };
+
+              // componentes utilitários de estilo
+              const Card = ({ children, style }) => (
+                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, ...style, }} > {children} </div>);
+
+              const Label = ({ children }) => (
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{children}</div>
+              );
+
+              const Value = ({ children }) => (
+                <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{children}</div>
+              );
+
               return (
                 <>
-                  <QRCodeCanvas value={gerarPayloadPix(valorCorrigido)} size={200} />
-                  <div style={{ marginTop: 10, fontWeight: 'bold' }}>
-                    R$ {valorCorrigido.toFixed(2)}
+                  {/* Bloco: Dados da cobrança (2 cards lado a lado) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 12, }} >
+                    <Card>
+                      <Label>Valor</Label>
+                      <Value>R$ {valorCorrigido.toFixed(2)}</Value>
+                    </Card>
+
+                    <Card>
+                      <Label>Vencimento</Label>
+                      <Value>
+                        {(() => {
+                          const vencimento = new Date(parcelaQRAtiva.dataVencimento);
+                          const hoje = new Date();
+                          hoje.setHours(0, 0, 0, 0); // zerar hora para comparar só a data
+
+                          const dataFormatada = vencimento.toLocaleDateString('pt-BR', {
+                            timeZone: 'UTC',
+                          });
+
+                          const estaAtrasado = vencimento < hoje;
+
+                          return (
+                            <> {dataFormatada}{' '}{estaAtrasado && (
+                                <span style={{ color: 'red', fontSize: 14, fontWeight: 600 }}>
+                                  (Atrasado)
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </Value>
+                    </Card>
+
+                  </div>
+
+                  {/* Bloco: Dados do recebedor */}
+                  <Card style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', rowGap: 12 }}>
+                      <div>
+                        <Label>Nome do recebedor</Label>
+                        <Value>{recebedorNome}</Value>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ flex: 1 }}>
+                          <Label>Chave Pix</Label>
+                          <div style={{ border: '1px solid #e5e7eb', borderRadius: 10, padding: '10px 12px', background: '#f9fafb', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', }} title={recebedorChavePix} > {recebedorChavePix} </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label>Pagamento referente à parcela</Label>
+                        <Value>#{parcelaQRAtiva.index + 1}</Value>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Seção: Pagamento via Pix (2 colunas) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 16, alignItems: 'start', }} >
+                    {/* Coluna esquerda: QRCode */}
+                    <Card style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
+                      <div style={{ fontWeight: 700, color: '#111827' }}>Pagamento via Pix</div>
+                      <QRCodeCanvas value={payloadPix} size={260} includeMargin={true} />
+                    </Card>
+
+                    {/* Coluna direita: “Pix Copia e Cola” + (opcional) ação lateral */}
+                    <div style={{ display: 'grid', gap: 16 }}>
+
+                      {/* Pix Copia e Cola */}
+                      <Card>
+                        <div style={{ fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+                          Pix Copia e Cola
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, alignItems: 'start', }}>
+                          <textarea readOnly value={payloadPix} style={{ width: '100%', minHeight: 70, resize: 'vertical', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 12.5, lineHeight: 1.45, padding: 12, borderRadius: 10, border: '1px solid #e5e7eb', background: '#f9fafb', color: 'black' }} />
+                          <button onClick={() => copiar(payloadPix)} style={{ alignSelf: 'stretch', border: '1px solid #2563eb', background: '#2563eb', color: '#fff', padding: '10px 14px', borderRadius: 10, cursor: 'pointer', fontWeight: 700, minWidth: 120, }} > Copiar </button>
+                        </div>
+                      </Card>
+                    </div>
                   </div>
                 </>
               );
             })()}
-
-            <button
-              onClick={fecharModal}
-              style={{
-                marginTop: 15,
-                padding: '5px 10px',
-                cursor: 'pointer',
-              }}
-            >
-              Fechar
-            </button>
           </div>
         </div>
+
       )}
     </div>
   );
