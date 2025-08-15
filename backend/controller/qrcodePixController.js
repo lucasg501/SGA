@@ -4,6 +4,9 @@ const qrcode = require('qrcode');
 const UsuarioModel = require('../model/usuarioModel');
 const TiposPixModel = require('../model/tiposPixModel');
 const AluguelModel = require('../model/aluguelModel');
+const { info } = require('console');
+const ImovelModel = require('../model/imovelModel');
+const ContratoModel = require('../model/contratoModel');
 
 function calcularCRC16(str) {
   let crc = 0xFFFF;
@@ -25,9 +28,15 @@ function formatarTelefonePix(numero) {
   return '+55' + numeros;
 }
 
-function buildPayloadPix({ tipoPixNome, chavePix, nomeRecebedor, cidade, valor }) {
-  let chaveFormatada = chavePix || '';
+function buildPayloadPix({ tipoPixNome, chavePix, nomeRecebedor, cidade, valor, infoAdic }) {
+  // Helpers
+  const byteLen = (s) => Buffer.byteLength(s ?? '', 'utf8');
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const removeAcentos = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const sanitize = (s) => removeAcentos(s || '').replace(/[^A-Za-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
 
+  // Formatar chave
+  let chaveFormatada = chavePix || '';
   if (tipoPixNome === 'Telefone') {
     chaveFormatada = formatarTelefonePix(chaveFormatada);
   } else if (tipoPixNome === 'CPF') {
@@ -36,33 +45,55 @@ function buildPayloadPix({ tipoPixNome, chavePix, nomeRecebedor, cidade, valor }
     chaveFormatada = chaveFormatada.replace(/\D/g, '').padStart(14, '0');
   }
 
-  const valorFormatado = Number(valor).toFixed(2);
-  const nome = (nomeRecebedor || 'RECEBEDOR').substring(0, 25).toUpperCase();
-  const cidadeLim = (cidade || 'PRES PRUDENTE').substring(0, 15).toUpperCase();
+  // Formatar valores e textos (sanitizando e usando byte length)
+  const valorFormatado = Number(valor).toFixed(2); // ex: "156.00"
+  const nome = sanitize(nomeRecebedor || 'RECEBEDOR').substring(0, 25).toUpperCase();
+  const cidadeLim = sanitize(cidade || 'PRES PRUDENTE').substring(0, 15).toUpperCase();
   const gui = 'BR.GOV.BCB.PIX';
-  const infoAdic = '***';
 
-  const mai =
-    '00' + gui.length.toString().padStart(2, '0') + gui +
-    '01' + chaveFormatada.length.toString().padStart(2, '0') + chaveFormatada;
+  // --- Campo 26 (GUI + Chave) ---
+  const guiTag = '00' + pad2(byteLen(gui)) + gui; // 00 + len(gui) + gui
+  const chaveTag = '01' + pad2(byteLen(chaveFormatada)) + chaveFormatada; // 01 + len(chave) + chave
+  const mai = guiTag + chaveTag;
+  const campo26 = '26' + pad2(byteLen(mai)) + mai;
 
-  const campo26 = '26' + mai.length.toString().padStart(2, '0') + mai;
+  // --- Campo 62 (Info Adicional) subcampo 05 ---
+  let campo62 = '';
+  if (infoAdic && String(infoAdic).trim().length > 0) {
+    // Limpa infoAdic: remove acentos, remove chars inválidos, normaliza espaços, preserva alfanumérico e espaços
+    let infoLimpa = removeAcentos(String(infoAdic)).replace(/[^A-Za-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+    // Se ainda houver conteúdo
+    if (infoLimpa.length > 0) {
+      const sub05 = '05' + pad2(byteLen(infoLimpa)) + infoLimpa;   // 05 + len(info) + info
+      campo62 = '62' + pad2(byteLen(sub05)) + sub05;              // 62 + len(sub05) + sub05
+    }
+  }
 
+  // --- Outros campos com byte lengths ---
+  const field52 = '52040000'; // mã MCC
+  const field53 = '5303' + '986'; // moeda BRL (986)
+  const field54 = '54' + pad2(byteLen(valorFormatado)) + valorFormatado;
+  const field58 = '58' + pad2(byteLen('BR')) + 'BR';
+  const field59 = '59' + pad2(byteLen(nome)) + nome;
+  const field60 = '60' + pad2(byteLen(cidadeLim)) + cidadeLim;
+
+  // Monta payload sem CRC (inclui '6304' placeholder)
   const payloadSemCRC =
     '000201' +
     campo26 +
-    '52040000' +
-    '5303986' +
-    '54' + valorFormatado.length.toString().padStart(2, '0') + valorFormatado +
-    '5802BR' +
-    '59' + nome.length.toString().padStart(2, '0') + nome +
-    '60' + cidadeLim.length.toString().padStart(2, '0') + cidadeLim +
-    '62' + '07' + '05' + infoAdic.length.toString().padStart(2, '0') + infoAdic +
+    field52 +
+    field53 +
+    field54 +
+    field58 +
+    field59 +
+    field60 +
+    campo62 +
     '6304';
 
   const crc = calcularCRC16(payloadSemCRC);
   return payloadSemCRC + crc;
 }
+
 
 function calcularValorComMulta(valorOriginal, dataVencimentoISO) {
   const hoje = new Date();
@@ -103,14 +134,28 @@ class PixController {
       const tipo = await tiposPixModel.obter(dadosPix.tipoPix);
       const tipoPixNome = tipo?.nomeTipo || null;
 
+      const contratoModel = new ContratoModel();
+      const contrato = await contratoModel.obter(aluguel.idContrato);
+      const imovelModel = new ImovelModel();
+      const imovel = await imovelModel.obter(contrato.idImovel);
+
+      let infoAdic = `${aluguel.idAluguel} - ${imovel.refImovel}`;
+      // Remove tudo que não seja letras, números ou traço
+      infoAdic = infoAdic.replace(/[^a-zA-Z0-9-]/g, '');
+      // Ou se quiser manter espaço, mas remover múltiplos:
+      infoAdic = infoAdic.replace(/\s+/g, ''); // remove todos os espaços extras
+
+
       const valorCorrigido = calcularValorComMulta(aluguel.valorAluguel, aluguel.dataVencimento);
       const payload = buildPayloadPix({
         tipoPixNome,
         chavePix: dadosPix.chavePix,
         nomeRecebedor: dadosPix.nomePix,
         cidade: dadosPix.cidade,
-        valor: valorCorrigido
+        valor: valorCorrigido,
+        infoAdic,
       });
+
 
       return res.status(200).json({
         payload,
@@ -118,7 +163,11 @@ class PixController {
         vencimento: aluguel.dataVencimento,
         recebedorNome: dadosPix.nomePix,
         chavePix: dadosPix.chavePix,
-        tipoPixNome
+        tipoPixNome,
+        cidade: dadosPix.cidade,
+        infoAdic: aluguel.idAluguel,
+        idAluguel: aluguel.idAluguel,
+        refImovel: aluguel.idImovel
       });
 
     } catch (e) {
@@ -162,8 +211,10 @@ class PixController {
         chavePix: dadosPix.chavePix,
         nomeRecebedor: dadosPix.nomePix,
         cidade: dadosPix.cidade,
-        valor: valorCorrigido
+        valor: valorCorrigido,
+        infoAdic: `${aluguel.idAluguel} - ${aluguel.idImovel}`,
       });
+
 
       // 5) Gerar QR
       const qrOptions = { type: 'png', width: 800, margin: 2, errorCorrectionLevel: 'H' };
@@ -247,7 +298,8 @@ class PixController {
         chavePix: dadosPix.chavePix,
         nomeRecebedor: dadosPix.nomePix,
         cidade: dadosPix.cidade,
-        valor
+        valor: valorCorrigido,
+        infoAdic: `${aluguel.idAluguel} - ${aluguel.idImovel}`,
       });
 
       return res.status(200).json({
@@ -297,7 +349,8 @@ class PixController {
         chavePix: dadosPix.chavePix,
         nomeRecebedor: dadosPix.nomePix,
         cidade: dadosPix.cidade,
-        valor
+        valor: valorCorrigido,
+        infoAdic: `${aluguel.idAluguel} - ${aluguel.idImovel}`,
       });
 
       // 5) Gerar QR
@@ -351,6 +404,14 @@ class PixController {
     const aluguel = await aluguelModel.obter(Number(idAluguel));
     if (!aluguel) throw new Error("Aluguel não encontrado.");
 
+    const contratoModel = new ContratoModel();
+    const contrato = await contratoModel.obter(aluguel.idContrato);
+    if (!contrato) throw new Error("Contrato nao encontrado.");
+
+    const imovelModel = new ImovelModel();
+    const imovel = await imovelModel.obter(contrato.idImovel);
+    if (!imovel) throw new Error("Imovel nao encontrado.");
+
     const usuarioModel = new UsuarioModel();
     const chaves = await usuarioModel.listarChave();
     if (!chaves || chaves.length === 0) throw new Error("Chave Pix não configurada.");
@@ -360,16 +421,24 @@ class PixController {
     const tipo = await tiposPixModel.obter(dadosPix.tipoPix);
     const tipoPixNome = tipo?.nomeTipo || null;
 
+    let infoAdic = `${aluguel.idAluguel} - ${imovel.refImovel}`;
+    // Remove tudo que não seja letras, números ou traço
+    infoAdic = infoAdic.replace(/[^a-zA-Z0-9-]/g, '');
+    // Ou se quiser manter espaço, mas remover múltiplos:
+    infoAdic = infoAdic.replace(/\s+/g, ''); // remove todos os espaços extras
+
+
     const valorCorrigido = calcularValorComMulta(aluguel.valorAluguel, aluguel.dataVencimento);
     const payload = buildPayloadPix({
       tipoPixNome,
       chavePix: dadosPix.chavePix,
       nomeRecebedor: dadosPix.nomePix,
       cidade: dadosPix.cidade,
-      valor: valorCorrigido
+      valor: valorCorrigido,
+      infoAdic
     });
 
-    return { payload, valorCorrigido, vencimento: aluguel.dataVencimento, recebedorNome: dadosPix.nomePix, chavePix: dadosPix.chavePix };
+    return { payload, valorCorrigido, vencimento: aluguel.dataVencimento, recebedorNome: dadosPix.nomePix, chavePix: dadosPix.chavePix, idAluguel: aluguel.idAluguel, refImovel: imovel.refImovel };
   }
 
   // Retorna payload para pagamento avulso sem enviar resposta HTTP
@@ -396,7 +465,8 @@ class PixController {
       chavePix: dadosPix.chavePix,
       nomeRecebedor: dadosPix.nomePix,
       cidade: dadosPix.cidade,
-      valor
+      valor: valorCorrigido,
+      infoAdic: `${aluguel.idAluguel} - ${aluguel.idImovel}`,
     });
 
     return { payload, valor, dataPagamento: pagamento.dataPagamento, recebedorNome: dadosPix.nomePix, chavePix: dadosPix.chavePix };
