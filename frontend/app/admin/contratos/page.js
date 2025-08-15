@@ -153,7 +153,7 @@ export default function Contratos() {
                                         <td>
                                             <Link href={`/admin/pagamentoAvulso/alterar/${value.idContrato}`}>
                                                 <button className="btn btn-success">
-                                                    <i class="fas fa-solid fa-coins"></i>
+                                                    <i className="fas fa-solid fa-coins"></i>
                                                 </button>
                                             </Link>
                                         </td>

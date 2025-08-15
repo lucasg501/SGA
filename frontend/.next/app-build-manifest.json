@@ -27,16 +27,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/page.js"
     ],
-    "/admin/pagamentoAvulso/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/pagamentoAvulso/page.js"
-    ],
-    "/admin/alugueis/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/alugueis/page.js"
-    ],
     "/admin/contratos/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -47,15 +37,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/pagamentoAvulso/alterar/[idContrato]/page.js"
     ],
-    "/admin/alugueis/gravar/page": [
+    "/admin/pagamentoAvulso/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/alugueis/gravar/page.js"
-    ],
-    "/admin/contratos/gravar/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/contratos/gravar/page.js"
+      "static/chunks/app/admin/pagamentoAvulso/page.js"
     ]
   }
 }

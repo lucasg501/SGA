@@ -1,62 +1,47 @@
 'use client'
-import { useEffect, useRef, useState } from "react";
-import httpClient from "../utils/httpClient";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import httpClient from "../utils/httpClient";
 
-export default function PagamentoAvulso(props) {
-    const [pagamentoAvulso, setPagamentoAvulso] = useState(props.pagamentoAvulso ? props.pagamentoAvulso : { 
-        idPagamento: 0, valorPagamento: '', dataPagamento: '', pago: false, idContrato: '' 
-    });
+export default function PagamentoAvulso({ contrato }) {
+    const [idContratoSelecionado, setIdContratoSelecionado] = useState(contrato ? contrato.idContrato : 0);
     const valorPagamento = useRef(null);
     const dataPagamento = useRef(null);
-    const pago = useRef(null);
-    const idContrato = useRef(null);
-    const [listaContratos, setListaContratos] = useState([]);
 
-    function listarContratos() {
-        let status = 0;
-        httpClient.get('/contratos/listar')
-            .then(r => { status = r.status; return r.json(); })
-            .then(r => { if (status == 200) { setListaContratos(r); } else { alert(r.msg); } })
-    }
-
-    useEffect(() => { listarContratos(); }, []);
-
+    // Função para formatar valor em R$ enquanto digita
     function formatarValor(e) {
-        let valor = e.target.value.replace(/\D/g, "");
-        valor = (parseInt(valor, 10) / 100).toFixed(2) + "";
-        valor = valor.replace(".", ",");
-        valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        let valor = e.target.value.replace(/\D/g, ""); // remove tudo que não é número
+        valor = (parseInt(valor, 10) / 100).toFixed(2) + ""; // adiciona casas decimais
+        valor = valor.replace(".", ","); // substitui ponto por vírgula
+        valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // adiciona separador de milhar
         e.target.value = "R$ " + valor;
     }
 
     function gravarPagamento() {
-        let status = 0;
         const valorSemFormato = valorPagamento.current.value
-            .replace(/[^\d,]/g, "") // remove R$, pontos, espaços
-            .replace(/\./g, "")     // remove separadores de milhar
-            .replace(",", ".");     // vírgula para ponto
+            .replace(/[^\d,]/g, "")
+            .replace(/\./g, "")
+            .replace(",", ".");
 
-        httpClient.post('/pagamentoavulso/gravar', {
-            idPagamento: pagamentoAvulso.idPagamento,
+        let status = 0;
+        httpClient.post('/pagamentoAvulso/gravar',{
             valorPagamento: valorSemFormato,
             dataPagamento: dataPagamento.current.value,
-            idContrato: idContrato.current.value
+            idContrato: idContratoSelecionado
         })
-            .then(r => {
-                status = r.status;
-                return r.json();
-            })
-            .then(r => {
-                if (status == 200) {
-                    alert('Pagamento gravado com sucesso!');
-                    window.location = '/admin/pagamentoAvulso';
-                } else {
-                    alert(r.msg);
-                }
-            });
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                alert(r.msg);
+                window.location.href = '/admin/contratos';
+            }else{
+                alert(r.msg);
+            }
+        })
     }
-
 
     return (
         <div>
@@ -64,48 +49,40 @@ export default function PagamentoAvulso(props) {
             <div>
                 <div className="form-group">
                     <label>Contrato</label>
-                    {
-                        pagamentoAvulso.idContrato == 0 ?
-                        <select ref={idContrato} className="form-control" defaultValue={pagamentoAvulso.idContrato}>
-                        <option value={0}>Selecione um contrato</option>
-                        {
-                            listaContratos.map(function(value,index){
-                                if(value.idContrato == pagamentoAvulso[0].idContrato){
-                                    return <option value={value.idContrato} selected>{value.idContrato}</option>
-                                }else{
-                                    return <option value={value.idContrato}>{value.idContrato}</option>
-                                }
-                            })
-                        }
+                    <select 
+                        className="form-control" 
+                        value={idContratoSelecionado} 
+                        onChange={(e) => setIdContratoSelecionado(parseInt(e.target.value))}
+                    >
+                        {contrato ? (
+                            <option value={contrato.idContrato}>Contrato #{contrato.idContrato}</option>
+                        ) : (
+                            <option value={0}>Selecione um contrato</option>
+                        )}
                     </select>
-                    :
-                    <select disabled ref={idContrato} className="form-control" defaultValue={pagamentoAvulso.idContrato}>
-                        <option value={0}>Selecione um contrato</option>
-                        {
-                            listaContratos.map(function(value,index){
-                                if(value.idContrato == pagamentoAvulso[0].idContrato){
-                                    return <option value={value.idContrato} selected>{value.idContrato}</option>
-                                }else{
-                                    return <option value={value.idContrato}>{value.idContrato}</option>
-                                }
-                            })
-                        }
-                    </select>
-                    }
                 </div>
+
                 <div className="form-group">
                     <label>Valor</label>
-                    <input ref={valorPagamento} type="text" className="form-control" defaultValue={pagamentoAvulso.valorPagamento} onChange={formatarValor} />
+                    <input 
+                        ref={valorPagamento} 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="R$ 0,00" 
+                        onChange={formatarValor} 
+                    />
                 </div>
+
                 <div className="form-group">
                     <label>Data</label>
-                    <input ref={dataPagamento} type="date" className="form-control" defaultValue={pagamentoAvulso.dataPagamento} />
+                    <input ref={dataPagamento} type="date" className="form-control" />
                 </div>
+
                 <div className="form-group">
                     <Link href='/admin/contratos'><button className="btn btn-danger">Cancelar</button></Link>
                     <button onClick={gravarPagamento} className="btn btn-primary" style={{ marginLeft: 10 }}>Cadastrar</button>
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -11,6 +11,7 @@ const locadorRoute = require('./route/locadorRoute');
 const locatarioRoute = require('./route/locatarioRoute');
 const tiposPixRoute = require('./route/tiposPixRoute');
 const pagamentoAvulsoRoute = require('./route/pagamentoAvulsoRoute');
+const qrCodePixRoute = require('./route/qrCodePixRoute');
 
 const cors = require('cors');
 
@@ -28,6 +29,7 @@ app.use('/locador', locadorRoute);
 app.use('/locatario', locatarioRoute);
 app.use('/tiposPix', tiposPixRoute);
 app.use('/pagamentoAvulso', pagamentoAvulsoRoute);
+app.use('/pix', qrCodePixRoute);
 
 app.listen(porta, () =>{
     console.log(`Servidor rodando na porta ${porta}`);

@@ -722,6 +722,102 @@
           }
         }
       }
+    },
+    "/pix/payload/{idAluguel}": {
+      "get": {
+        "tags": [
+          "QrCodePix"
+        ],
+        "summary": "Retorna JSON com payload e metadados",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idAluguel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pix/qrcode/{idAluguel.png}": {
+      "get": {
+        "tags": [
+          "QrCodePix"
+        ],
+        "summary": "Retorna imagem PNG do QR Code",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idAluguel.png",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pix/payload/avulso/{idPagamento}": {
+      "get": {
+        "tags": [
+          "QrCodePix"
+        ],
+        "summary": "Retorna JSON com payload e metadados do pagamento avulso",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idPagamento",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pix/qrcode/avulso/{idPagamento.png}": {
+      "get": {
+        "tags": [
+          "QrCodePix"
+        ],
+        "summary": "Retorna imagem PNG do QR Code do pagamento avulso",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idPagamento.png",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {

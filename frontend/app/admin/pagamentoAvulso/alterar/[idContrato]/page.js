@@ -8,18 +8,18 @@ export default function AlterarPagamentoAvulso({params}) {
 
     const {idContrato} = use(params);
 
-    const [pagamentoAvulso, setPagamentoAvulso] = useState(null);
+    const [contrato, setContrato] = useState(null);
 
-    function buscarPagamento(){
+    function buscarContrato(){
         let status = 0;
-        httpClient.get(`/pagamentoAvulso/obterPorContrato/${idContrato}`)
+        httpClient.get(`/contratos/obter/${idContrato}`)
         .then(r=>{
             status = r.status;
             return r.json();
         })
         .then(r=>{
             if(status == 200){
-                setPagamentoAvulso(r);
+                setContrato(r);
             }else{
                 alert(r.msg);
             }
@@ -27,12 +27,12 @@ export default function AlterarPagamentoAvulso({params}) {
     }
 
     useEffect(()=>{
-        buscarPagamento();
+        buscarContrato();
     },[]);
 
     return (
         <div>
-            {pagamentoAvulso != null ? <PagamentoAvulsoComponent pagamentoAvulso={pagamentoAvulso} /> : <div>Carregando...</div>}
+            {contrato != null ? <PagamentoAvulsoComponent contrato={contrato} /> : <div>Carregando...</div>}
         </div>
     );
 }
