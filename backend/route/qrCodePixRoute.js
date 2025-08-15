@@ -1,35 +1,21 @@
-const express  = require('express');
+const express = require('express');
 const router = express.Router();
-const QrCodePixController = require('../controller/qrcodePixController');
+const PixController = require('../controller/qrcodePixController');
 
-const ctrl = new QrCodePixController();
+const ctrl = new PixController();
 
-router.get('/payload/:idAluguel', (req, res) => {
-    // #swagger.tags = ['QrCodePix']
-    // #swagger.summary = 'Retorna JSON com payload e metadados'
+// Rotas originais
+router.get('/payload/:idAluguel', (req, res) => ctrl.payload(req, res));
+router.get('/qrcode/:idAluguel.png', (req, res) => ctrl.qrcode(req, res));
+router.get('/payload/avulso/:idPagamento', (req, res) => ctrl.payloadAvulso(req, res));
+router.get('/qrcode/avulso/:idPagamento.png', (req, res) => ctrl.qrcodeAvulso(req, res));
 
-    ctrl.payload(req, res);
-});
+// -------------------- Rotas de iframe (delegam ao controller) --------------------
 
-router.get('/qrcode/:idAluguel.png', (req, res) => {
-    // #swagger.tags = ['QrCodePix']
-    // #swagger.summary = 'Retorna imagem PNG do QR Code'
+// iframe para aluguel (controller gera HTML com data URL)
+router.get('/iframe/:idAluguel', (req, res) => ctrl.iframePorAluguel(req, res));
 
-    ctrl.qrcode(req, res);
-});
-
-// rotas para pagamento avulso
-router.get('/payload/avulso/:idPagamento', (req, res) => {
-    // #swagger.tags = ['QrCodePix']
-    // #swagger.summary = 'Retorna JSON com payload e metadados do pagamento avulso'
-    ctrl.payloadAvulso(req, res);
-});
-
-router.get('/qrcode/avulso/:idPagamento.png', (req, res) => {
-    // #swagger.tags = ['QrCodePix']
-    // #swagger.summary = 'Retorna imagem PNG do QR Code do pagamento avulso'
-    ctrl.qrcodeAvulso(req, res);
-});
-
+// iframe para pagamento avulso (controller gera HTML com data URL)
+router.get('/iframe/avulso/:idPagamento', (req, res) => ctrl.iframePorPagamentoAvulso(req, res));
 
 module.exports = router;

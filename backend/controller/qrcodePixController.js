@@ -1,6 +1,5 @@
 const qrcode = require('qrcode');
 
-
 // Models (ajuste caminhos conforme seu projeto)
 const UsuarioModel = require('../model/usuarioModel');
 const TiposPixModel = require('../model/tiposPixModel');
@@ -128,8 +127,7 @@ class PixController {
     }
   }
 
-  // GET /pix/qrcode/:idAluguel.png  (gera QR com logo no centro via URL)
-  // GET /pix/qrcode/:idAluguel.png  (gera QR com logo no centro via URL)
+  // GET /pix/qrcode/:idAluguel.png  (original - gera QR com logo)
   async qrcode(req, res) {
     // Importa Jimp dinamicamente dentro da função
     const { default: Jimp } = await import('jimp');
@@ -193,14 +191,12 @@ class PixController {
       logo.contain(logoSize, logoSize, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
 
       // 8) Fundo branco ao redor da logo
-      // Reduz o padding para 10% do tamanho da logo (antes estava 18%)
       const padding = Math.floor(logoSize * 0.05);
       const bgSize = logoSize + padding * 2;
       const bg = new Jimp(bgSize, bgSize, 0xFFFFFFFF); // fundo branco
 
       const xCenter = Math.floor((qrImage.bitmap.width - bgSize) / 2);
       const yCenter = Math.floor((qrImage.bitmap.height - bgSize) / 2);
-
 
       qrImage.composite(bg, xCenter, yCenter);
 
@@ -347,7 +343,212 @@ class PixController {
     }
   }
 
+  // Versões Async utilizadas internamente / por outras camadas (retornam dados)
+  async payloadAsync(idAluguel) {
+    if (!(Number(idAluguel) > 0)) throw new Error("Parâmetros inválidos.");
 
+    const aluguelModel = new AluguelModel();
+    const aluguel = await aluguelModel.obter(Number(idAluguel));
+    if (!aluguel) throw new Error("Aluguel não encontrado.");
+
+    const usuarioModel = new UsuarioModel();
+    const chaves = await usuarioModel.listarChave();
+    if (!chaves || chaves.length === 0) throw new Error("Chave Pix não configurada.");
+    const dadosPix = chaves[0];
+
+    const tiposPixModel = new TiposPixModel();
+    const tipo = await tiposPixModel.obter(dadosPix.tipoPix);
+    const tipoPixNome = tipo?.nomeTipo || null;
+
+    const valorCorrigido = calcularValorComMulta(aluguel.valorAluguel, aluguel.dataVencimento);
+    const payload = buildPayloadPix({
+      tipoPixNome,
+      chavePix: dadosPix.chavePix,
+      nomeRecebedor: dadosPix.nomePix,
+      cidade: dadosPix.cidade,
+      valor: valorCorrigido
+    });
+
+    return { payload, valorCorrigido, vencimento: aluguel.dataVencimento, recebedorNome: dadosPix.nomePix, chavePix: dadosPix.chavePix };
+  }
+
+  // Retorna payload para pagamento avulso sem enviar resposta HTTP
+  async payloadAvulsoAsync(idPagamento) {
+    const pagamentoAvulsoModel = require('../model/pagamentoAvulsoModel');
+    const id = Number(idPagamento);
+    if (!id) throw new Error("Parâmetros inválidos.");
+
+    const pagamento = await new pagamentoAvulsoModel().obter(id);
+    if (!pagamento) throw new Error("Pagamento avulso não encontrado.");
+
+    const usuarioModel = new UsuarioModel();
+    const chaves = await usuarioModel.listarChave();
+    if (!chaves || chaves.length === 0) throw new Error("Chave Pix não configurada.");
+    const dadosPix = chaves[0];
+
+    const tiposPixModel = new TiposPixModel();
+    const tipo = await tiposPixModel.obter(dadosPix.tipoPix);
+    const tipoPixNome = tipo?.nomeTipo || null;
+
+    const valor = Number(pagamento.valorPagamento);
+    const payload = buildPayloadPix({
+      tipoPixNome,
+      chavePix: dadosPix.chavePix,
+      nomeRecebedor: dadosPix.nomePix,
+      cidade: dadosPix.cidade,
+      valor
+    });
+
+    return { payload, valor, dataPagamento: pagamento.dataPagamento, recebedorNome: dadosPix.nomePix, chavePix: dadosPix.chavePix };
+  }
+
+  // ---------------------------
+  // --- NOVOS MÉTODOS: IFRAME ---
+  // ---------------------------
+
+  // GET /pix/iframe/:idAluguel
+  // Gera HTML com a imagem do QR embutida (data URL). Suporta ?logo=<url> para tentar compor logo.
+  async iframePorAluguel(req, res) {
+    const { default: Jimp } = await import('jimp').catch(() => ({})); // jimp é opcional apenas para compor logo
+    try {
+      const idAluguel = req.params.idAluguel;
+      const r = await this.payloadAsync(idAluguel);
+      const payload = r.payload;
+
+      // Se houver query.logo tente compor com Jimp; caso contrário use toDataURL direto
+      const logoUrl = 'https://i.ytimg.com/vi/PDWQQNDTea0/mqdefault.jpg';
+
+      let dataUrl;
+      if (logoUrl && Jimp) {
+        try {
+          const qrBuffer = await qrcode.toBuffer(payload, { type: 'png', width: 600, margin: 2, errorCorrectionLevel: 'H' });
+          const qrImage = await Jimp.read(qrBuffer);
+          let logo = await Jimp.read(logoUrl);
+
+          const qrSize = Math.min(qrImage.bitmap.width, qrImage.bitmap.height);
+          const logoPercent = 0.30;
+          const logoSize = Math.floor(qrSize * logoPercent);
+          logo.contain(logoSize, logoSize, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+
+          const padding = Math.floor(logoSize * 0.05);
+          const bgSize = logoSize + padding * 2;
+          const bg = new Jimp(bgSize, bgSize, 0xFFFFFFFF);
+
+          const xCenter = Math.floor((qrImage.bitmap.width - bgSize) / 2);
+          const yCenter = Math.floor((qrImage.bitmap.height - bgSize) / 2);
+
+          qrImage.composite(bg, xCenter, yCenter);
+          const logoX = xCenter + Math.floor((bgSize - logo.bitmap.width) / 2);
+          const logoY = yCenter + Math.floor((bgSize - logo.bitmap.height) / 2);
+          qrImage.composite(logo, logoX, logoY, { mode: Jimp.BLEND_SOURCE_OVER, opacitySource: 1 });
+
+          const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
+          dataUrl = `data:image/png;base64,${finalBuffer.toString('base64')}`;
+        } catch (errLogoCompose) {
+          // fallback para toDataURL
+          console.warn('Erro ao compor logo, usando fallback toDataURL:', errLogoCompose);
+          dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+        }
+      } else {
+        dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+      }
+
+      const html = this._gerarIframeHTMLDataUrl(dataUrl, payload, 'Pagamento via Pix');
+
+      res.set('Content-Type', 'text/html');
+      return res.status(200).send(html);
+    } catch (e) {
+      console.error('iframePorAluguel error:', e);
+      return res.status(500).send('Erro ao gerar iframe Pix');
+    }
+  }
+
+  // GET /pix/iframe/avulso/:idPagamento
+  async iframePorPagamentoAvulso(req, res) {
+    const { default: Jimp } = await import('jimp').catch(() => ({}));
+    try {
+      const idPagamento = req.params.idPagamento;
+      const r = await this.payloadAvulsoAsync(idPagamento);
+      const payload = r.payload;
+
+      const logoUrl = req.query.logo;
+
+      let dataUrl;
+      if (logoUrl && Jimp) {
+        try {
+          const qrBuffer = await qrcode.toBuffer(payload, { type: 'png', width: 800, margin: 2, errorCorrectionLevel: 'H' });
+          const qrImage = await Jimp.read(qrBuffer);
+          let logo = await Jimp.read(logoUrl);
+
+          const qrSize = Math.min(qrImage.bitmap.width, qrImage.bitmap.height);
+          const logoPercent = 0.30;
+          const logoSize = Math.floor(qrSize * logoPercent);
+          logo.contain(logoSize, logoSize, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+
+          const padding = Math.floor(logoSize * 0.05);
+          const bgSize = logoSize + padding * 2;
+          const bg = new Jimp(bgSize, bgSize, 0xFFFFFFFF);
+
+          const xCenter = Math.floor((qrImage.bitmap.width - bgSize) / 2);
+          const yCenter = Math.floor((qrImage.bitmap.height - bgSize) / 2);
+
+          qrImage.composite(bg, xCenter, yCenter);
+          const logoX = xCenter + Math.floor((bgSize - logo.bitmap.width) / 2);
+          const logoY = yCenter + Math.floor((bgSize - logo.bitmap.height) / 2);
+          qrImage.composite(logo, logoX, logoY, { mode: Jimp.BLEND_SOURCE_OVER, opacitySource: 1 });
+
+          const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
+          dataUrl = `data:image/png;base64,${finalBuffer.toString('base64')}`;
+        } catch (errLogoCompose) {
+          console.warn('Erro ao compor logo, usando fallback toDataURL:', errLogoCompose);
+          dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+        }
+      } else {
+        dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+      }
+
+      const html = this._gerarIframeHTMLDataUrl(dataUrl, payload, 'Pagamento Avulso via Pix');
+
+      res.set('Content-Type', 'text/html');
+      return res.status(200).send(html);
+    } catch (e) {
+      console.error('iframePorPagamentoAvulso error:', e);
+      return res.status(500).send('Erro ao gerar iframe Pix Avulso');
+    }
+  }
+
+  _gerarIframeHTMLDataUrl(dataUrl, payload, titulo) {
+    return `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>${titulo}</title>
+        <style>
+          body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #f9fafb;
+          }
+          img {
+            width: 230px;
+            height: 230px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${dataUrl}" alt="QR Code Pix">
+      </body>
+      </html>
+    `;
+  }
 }
 
 module.exports = PixController;
