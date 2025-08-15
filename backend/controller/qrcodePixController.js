@@ -415,15 +415,16 @@ class PixController {
       const r = await this.payloadAsync(idAluguel);
       const payload = r.payload;
 
-      // Se houver query.logo tente compor com Jimp; caso contrário use toDataURL direto
+      // Se houver query.logo tente compor com Jimp; caso contrário use SVG direto
       const logoUrl = 'https://i.ytimg.com/vi/PDWQQNDTea0/mqdefault.jpg';
 
-      let dataUrl;
+      let svg;
       if (logoUrl && Jimp) {
         try {
+          // Gerar QR code PNG temporário para composição do logo
           const qrBuffer = await qrcode.toBuffer(payload, { type: 'png', width: 600, margin: 2, errorCorrectionLevel: 'H' });
           const qrImage = await Jimp.read(qrBuffer);
-          let logo = await Jimp.read(logoUrl);
+          const logo = await Jimp.read(logoUrl);
 
           const qrSize = Math.min(qrImage.bitmap.width, qrImage.bitmap.height);
           const logoPercent = 0.30;
@@ -443,17 +444,22 @@ class PixController {
           qrImage.composite(logo, logoX, logoY, { mode: Jimp.BLEND_SOURCE_OVER, opacitySource: 1 });
 
           const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
-          dataUrl = `data:image/png;base64,${finalBuffer.toString('base64')}`;
+          // Converter PNG final para base64 e colocar dentro de SVG
+          const base64Img = finalBuffer.toString('base64');
+          svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="260" height="260">
+            <image href="data:image/png;base64,${base64Img}" width="260" height="260"/>
+          </svg>
+        `;
         } catch (errLogoCompose) {
-          // fallback para toDataURL
-          console.warn('Erro ao compor logo, usando fallback toDataURL:', errLogoCompose);
-          dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+          console.warn('Erro ao compor logo, usando fallback SVG:', errLogoCompose);
+          svg = await qrcode.toString(payload, { type: 'svg', width: 260, errorCorrectionLevel: 'H' });
         }
       } else {
-        dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+        svg = await qrcode.toString(payload, { type: 'svg', width: 260, errorCorrectionLevel: 'H' });
       }
 
-      const html = this._gerarIframeHTMLDataUrl(dataUrl, payload, 'Pagamento via Pix');
+      const html = this._gerarIframeHTMLSVG(svg, 'Pagamento via Pix');
 
       res.set('Content-Type', 'text/html');
       return res.status(200).send(html);
@@ -463,6 +469,7 @@ class PixController {
     }
   }
 
+
   // GET /pix/iframe/avulso/:idPagamento
   async iframePorPagamentoAvulso(req, res) {
     const { default: Jimp } = await import('jimp').catch(() => ({}));
@@ -471,14 +478,15 @@ class PixController {
       const r = await this.payloadAvulsoAsync(idPagamento);
       const payload = r.payload;
 
-      const logoUrl = req.query.logo;
+      const logoUrl = 'https://i.ytimg.com/vi/PDWQQNDTea0/mqdefault.jpg';
 
-      let dataUrl;
+      let svg;
       if (logoUrl && Jimp) {
         try {
+          // Gerar QR code PNG temporário para composição do logo
           const qrBuffer = await qrcode.toBuffer(payload, { type: 'png', width: 800, margin: 2, errorCorrectionLevel: 'H' });
           const qrImage = await Jimp.read(qrBuffer);
-          let logo = await Jimp.read(logoUrl);
+          const logo = await Jimp.read(logoUrl);
 
           const qrSize = Math.min(qrImage.bitmap.width, qrImage.bitmap.height);
           const logoPercent = 0.30;
@@ -498,16 +506,22 @@ class PixController {
           qrImage.composite(logo, logoX, logoY, { mode: Jimp.BLEND_SOURCE_OVER, opacitySource: 1 });
 
           const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
-          dataUrl = `data:image/png;base64,${finalBuffer.toString('base64')}`;
+          // Colocar o PNG final dentro de SVG
+          const base64Img = finalBuffer.toString('base64');
+          svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="260" height="260">
+            <image href="data:image/png;base64,${base64Img}" width="260" height="260"/>
+          </svg>
+        `;
         } catch (errLogoCompose) {
-          console.warn('Erro ao compor logo, usando fallback toDataURL:', errLogoCompose);
-          dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+          console.warn('Erro ao compor logo, usando fallback SVG:', errLogoCompose);
+          svg = await qrcode.toString(payload, { type: 'svg', width: 260, errorCorrectionLevel: 'H' });
         }
       } else {
-        dataUrl = await qrcode.toDataURL(payload, { width: 260, errorCorrectionLevel: 'H' });
+        svg = await qrcode.toString(payload, { type: 'svg', width: 260, errorCorrectionLevel: 'H' });
       }
 
-      const html = this._gerarIframeHTMLDataUrl(dataUrl, payload, 'Pagamento Avulso via Pix');
+      const html = this._gerarIframeHTMLSVG(svg, 'Pagamento Avulso via Pix');
 
       res.set('Content-Type', 'text/html');
       return res.status(200).send(html);
@@ -517,38 +531,40 @@ class PixController {
     }
   }
 
-  _gerarIframeHTMLDataUrl(dataUrl, payload, titulo) {
+
+  _gerarIframeHTMLSVG(svgContent, titulo) {
     return `
-      <!DOCTYPE html>
-      <html lang="pt-BR">
-      <head>
-        <meta charset="UTF-8">
-        <title>${titulo}</title>
-        <style>
-          body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 16px;
-            background: #f9fafb;
-          }
-          img {
-            width: 230px;
-            height: 230px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-          }
-        </style>
-      </head>
-      <body>
-        <img src="${dataUrl}" alt="QR Code Pix">
-      </body>
-      </html>
-    `;
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <title>${titulo}</title>
+      <style>
+        body {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-family: sans-serif;
+          margin: 0;
+          padding: 10px;
+          background: #f9fafb;
+        }
+        svg {
+          width: 250px;
+          height: 250px;
+          margin-bottom: 12px;
+          border-radius: 8px;
+        }
+      </style>
+    </head>
+    <body>
+      ${svgContent}
+    </body>
+    </html>
+  `;
   }
+
 }
 
 module.exports = PixController;

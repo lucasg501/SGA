@@ -319,24 +319,20 @@ export default function Home() {
             </div>
 
             {/* Dados do recebedor */}
-            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Nome do recebedor</div>
-              <div style={{ fontWeight: 700, fontSize: 16, color: '#111827', marginBottom: 8 }}>{dadosPix?.nomePix || 'Seu Nome / Empresa'}</div>
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Chave Pix</div>
-              <div style={{
-                border: '1px solid #e5e7eb',
-                borderRadius: 10,
-                padding: '10px 12px',
-                background: '#f9fafb',
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                fontSize: 13,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }} title={dadosPix?.chavePix || ''}>
-                {dadosPix?.chavePix || ''}
-              </div>
-            </div>
+            {
+              dadosPix && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 12 }}>
+                  <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Recebedor</div>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.nomePix}</div>
+                  </div>
+                  <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Chave Pix</div>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.chavePix}</div>
+                  </div>
+                </div>
+              )
+            }
 
             {/* QR Code e Copia e Cola */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
