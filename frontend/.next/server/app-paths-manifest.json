@@ -1,9 +1,4 @@
 {
-  "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/pagamentoAvulso/page": "app/admin/pagamentoAvulso/page.js",
-  "/admin/contratos/page": "app/admin/contratos/page.js",
-  "/admin/alugueis/page": "app/admin/alugueis/page.js",
-  "/admin/chave/alterar/[idUsuario]/page": "app/admin/chave/alterar/[idUsuario]/page.js",
-  "/admin/chave/page": "app/admin/chave/page.js"
+  "/admin/locatario/page": "app/admin/locatario/page.js",
+  "/admin/locatario/gravar/page": "app/admin/locatario/gravar/page.js"
 }

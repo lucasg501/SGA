@@ -18,4 +18,43 @@ router.get('/obter/:idLocatario', (req,res)=>{
     ctrl.obter(req,res);
 });
 
+router.post('/gravar', (req,res)=>{
+    // #swagger.tags = ['Locatarios']
+    // #swagger.summary = 'Adiciona um locatario'
+    /*
+        #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: { "$ref": "#/definitions/locatario" }
+                }
+            }
+        }
+    */
+    ctrl.gravar(req,res);
+});
+
+router.put('/alterar', (req,res)=>{
+    // #swagger.tags = ['Locatarios']
+    // #swagger.summary = 'Altera um locatario'
+    /*
+        #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: { "$ref": "#/definitions/locatario" }
+                }
+            }
+        }
+    */
+    ctrl.alterar(req,res);
+});
+
+router.delete('/excluir/:idLocatario', (req,res)=>{
+    // #swagger.tags = ['Locatarios']
+    // #swagger.summary = 'Exclui um locatario'
+
+    ctrl.excluir(req,res);
+});
+
 module.exports = router;
