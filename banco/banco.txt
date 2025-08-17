@@ -80,3 +80,6 @@ CREATE TABLE `usuario` (
   KEY `fk_tipoPix` (`tipoPix`),
   CONSTRAINT `fk_tipoPix` FOREIGN KEY (`tipoPix`) REFERENCES `tipospix` (`idTipoPix`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+update table contrato add column ativo enum('S', 'N') not null;
