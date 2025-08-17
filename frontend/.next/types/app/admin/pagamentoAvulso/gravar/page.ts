@@ -1,4 +1,4 @@
-// File: C:\Users\Imobi - 26\Pictures\SGA\frontend\app\admin\pagamentoAvulso\gravar\page.js
+// File: C:\Users\lucas\OneDrive\Documentos\Projetos\SGA\frontend\app\admin\pagamentoAvulso\gravar\page.js
 import * as entry from '../../../../../../app/admin/pagamentoAvulso/gravar/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

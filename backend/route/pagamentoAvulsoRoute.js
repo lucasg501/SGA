@@ -66,4 +66,11 @@ router.delete('/excluir/:idPagamentoAvulso', (req,res)=>{
     ctrl.excluir(req,res);
 });
 
+router.get('/obterPorImovel/:refImovel', (req,res) =>{
+    // #swagger.tags = ['PagamentoAvulso']
+    // #swagger.summary = 'Obtem um pagamentoAvulso cadastrado por meio da referencia do imovel'
+
+    ctrl.buscarPorImovel(req,res);
+});
+
 module.exports = router;

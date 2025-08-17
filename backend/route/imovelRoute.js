@@ -35,4 +35,11 @@ router.post('/gravar', (req,res)=>{
     ctrl.gravar(req,res);
 });
 
+router.get('/buscarPorImovel/:refImovel', (req,res)=>{
+    // #swagger.tags = ['Imoveis']
+    // #swagger.summary = 'Obtem um imovel cadastrado por meio do refImovel'
+
+    ctrl.buscarPorImovel(req,res);
+});
+
 module.exports = router;

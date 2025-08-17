@@ -88,6 +88,18 @@ class PagamentoAvulsoController {
         }
     }
 
+    async buscarPorImovel(req,res){
+        if(req.params.refImovel.length > 0){
+            let pagamentoAvulso = new PagamentoAvulsoModel();
+            let lista = await pagamentoAvulso.buscaPorImovel(req.params.refImovel);
+            let listaRetorno = [];
+            for (let i = 0; i < lista.length; i++) {
+                listaRetorno.push(lista[i].toJSON());
+            }
+            res.status(200).json(listaRetorno);
+        }
+    }
+
 }
 
 module.exports = PagamentoAvulsoController;

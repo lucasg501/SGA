@@ -451,6 +451,30 @@
         }
       }
     },
+    "/imovel/buscarPorImovel/{refImovel}": {
+      "get": {
+        "tags": [
+          "Imoveis"
+        ],
+        "summary": "Obtem um imovel cadastrado por meio do refImovel",
+        "description": "",
+        "parameters": [
+          {
+            "name": "refImovel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/locador/listar": {
       "get": {
         "tags": [
@@ -709,6 +733,30 @@
         "parameters": [
           {
             "name": "idPagamentoAvulso",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/pagamentoAvulso/obterPorImovel/{refImovel}": {
+      "get": {
+        "tags": [
+          "PagamentoAvulso"
+        ],
+        "summary": "Obtem um pagamentoAvulso cadastrado por meio da referencia do imovel",
+        "description": "",
+        "parameters": [
+          {
+            "name": "refImovel",
             "in": "path",
             "required": true,
             "schema": {

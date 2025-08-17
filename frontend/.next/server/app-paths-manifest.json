@@ -1,11 +1,8 @@
 {
-  "/page": "app/page.js",
-  "/login/page": "app/login/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/admin/pagamentoAvulso/page": "app/admin/pagamentoAvulso/page.js",
+  "/admin/pagamentoAvulso/alterar/[idContrato]/page": "app/admin/pagamentoAvulso/alterar/[idContrato]/page.js",
   "/admin/contratos/page": "app/admin/contratos/page.js",
-  "/admin/chave/alterar/[idUsuario]/page": "app/admin/chave/alterar/[idUsuario]/page.js",
-  "/admin/chave/page": "app/admin/chave/page.js",
   "/admin/alugueis/page": "app/admin/alugueis/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/contratos/gravar/page": "app/admin/contratos/gravar/page.js",
-  "/admin/contratos/alterar/[idContrato]/page": "app/admin/contratos/alterar/[idContrato]/page.js"
+  "/admin/chave/page": "app/admin/chave/page.js"
 }

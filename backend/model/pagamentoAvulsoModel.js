@@ -112,6 +112,31 @@ class PagamentoAvulsoModel {
         let ok = await banco.ExecutaComandoNonQuery(sql, valores);
         return ok;
     }
+
+    async buscaPorImovel(refImovel, limit = 10, offset = 0) {
+        if (!refImovel || !refImovel.toString().trim()) return [];
+
+        const sql = `SELECT p.idPagamento, p.valorPagamento, p.dataPagamento, p.pago, p.idContrato FROM pagamentoAvulso p JOIN contrato c ON p.idContrato = c.idContrato JOIN imovel i ON c.idImovel = i.idImovel WHERE i.refImovel LIKE CONCAT('%', ?, '%') ORDER BY p.idPagamento DESC LIMIT ? OFFSET ?;`;
+
+        const valores = [refImovel, Number(limit), Number(offset)];
+
+        try {
+            const rows = await banco.ExecutaComando(sql, valores);
+            if (!rows || rows.length === 0) return [];
+
+            return rows.map(r => new PagamentoAvulsoModel(
+                r.idPagamento,
+                r.valorPagamento,
+                r.dataPagamento,
+                r.pago,
+                r.idContrato
+            ));
+        } catch (err) {
+            console.error('Erro em buscaPorImovel (pagamentoAvulso):', err);
+            throw err;
+        }
+    }
+
 }
 
 module.exports = PagamentoAvulsoModel;

@@ -103,15 +103,39 @@ export default function Contratos() {
         listarImoveis();
     }, []);
 
+    function buscarPorRef(refImovel) {
+        let status = 0;
+        httpClient.get(`/imovel/buscarPorImovel/${refImovel}`)
+            .then(r => {
+                status = r.status;
+                return r.json();
+            })
+            .then(r => {
+                if (status == 200) {
+                    setContratos(r);
+                } else {
+                    alert('Erro ao listar contratos.');
+                }
+            })
+    }
+
     return (
         <div>
             <h1>Contratos</h1>
 
             <div>
-                <Link href='/admin/contratos/gravar'>
-                    <button style={{ margin: '10px' }} className="btn btn-primary">Novo Contrato</button>
-                </Link>
+                <div>
+                    <Link href='/admin/contratos/gravar'>
+                        <button className="btn btn-primary">Novo Contrato</button>
+                    </Link>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                    <input className="form-control" type="text" onChange={e => { buscarPorRef(e.target.value); }} />
+                    <button className="btn btn-secondary" onClick={() => { window.location.reload(); }}>Limpar Filtro</button>
+                </div>
             </div>
+
 
             <div>
                 <table className="table table-striped">

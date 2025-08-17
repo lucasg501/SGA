@@ -85,7 +85,7 @@ class ContratoModel {
             return ok;
         } else {
             let sql = "update contrato set idImovel = ?, idLocatario = ?, idLocador = ?, qtdParcelas = ?, valorParcela = ?, dataVencimento = ?, inicioVigenciaContrato = ?, fimVigenciaContrato = ? where idContrato = ?";
-            let valores = [this.#idImovel, this.#idLocatario, this.#idLocador, this.#qtdParcelas, this.#valorParcela, this.#dataVencimento, this.#inicioVigenciaContrato, this.#fimVigenciaContrato ,this.#idContrato];
+            let valores = [this.#idImovel, this.#idLocatario, this.#idLocador, this.#qtdParcelas, this.#valorParcela, this.#dataVencimento, this.#inicioVigenciaContrato, this.#fimVigenciaContrato, this.#idContrato];
             let ok = await banco.ExecutaComandoNonQuery(sql, valores);
             return ok;
         }
@@ -101,6 +101,35 @@ class ContratoModel {
         } catch (e) {
             console.log(e);
             return false;
+        }
+    }
+
+    async buscaPorImovel(refImovel, limit = 10, offset = 0) {
+        if (!refImovel || !refImovel.toString().trim()) return [];
+
+        const sql = "SELECT c.idContrato, c.idImovel, c.idLocatario, c.idLocador, c.qtdParcelas, c.valorParcela, c.dataVencimento, c.inicioVigenciaContrato, c.fimVigenciaContrato, i.refImovel FROM contrato c JOIN imovel i ON i.idImovel = c.idImovel WHERE i.refImovel LIKE CONCAT('%', ?, '%') ORDER BY c.idContrato DESC LIMIT ? OFFSET ?;";
+
+        const valores = [refImovel, Number(limit), Number(offset)];
+
+        try {
+            const rows = await banco.ExecutaComando(sql, valores);
+            if (!rows || rows.length === 0) return [];
+
+            return rows.map(r => new ContratoModel(
+                r.idContrato,
+                r.idImovel,
+                r.idLocatario,
+                r.idLocador,
+                r.qtdParcelas,
+                r.valorParcela,
+                r.dataVencimento,
+                r.inicioVigenciaContrato,
+                r.fimVigenciaContrato,
+                r.refImovel
+            ));
+        } catch (err) {
+            console.error('Erro em buscaPorImovel:', err);
+            throw err;
         }
     }
 
