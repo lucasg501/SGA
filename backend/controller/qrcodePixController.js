@@ -274,41 +274,60 @@ class PixController {
     try {
       // 1) Buscar pagamento avulso
       const PagamentoAvulsoModel = require('../model/pagamentoAvulsoModel');
-      let pagamento = new PagamentoAvulsoModel();
-      pagamento = await pagamento.obter(idPagamento);
+      let pagamentoModel = new PagamentoAvulsoModel();
+      const pagamento = await pagamentoModel.obter(idPagamento);
       if (!pagamento) return res.status(404).json({ message: "Pagamento avulso não encontrado." });
 
       // 2) Buscar chave Pix
+      const UsuarioModel = require('../model/usuarioModel');
       const usuarioModel = new UsuarioModel();
       const chaves = await usuarioModel.listarChave();
       if (!chaves || chaves.length === 0) return res.status(500).json({ message: "Chave Pix não configurada." });
       const dadosPix = chaves[0];
 
       // 3) Tipo Pix
+      const TiposPixModel = require('../model/tiposPixModel');
       const tiposPixModel = new TiposPixModel();
       const tipo = await tiposPixModel.obter(dadosPix.tipoPix);
       const tipoPixNome = tipo?.nomeTipo || null;
 
-      // 4) Valor
+      // 4) Buscar refImovel do contrato
+      const ContratoModel = require('../model/contratoModel');
+      const contratoModel = new ContratoModel();
+      const contrato = await contratoModel.obter(pagamento.idContrato);
+      if (!contrato) return res.status(404).json({ message: "Contrato não encontrado para este pagamento." });
+
+      const ImovelModel = require('../model/imovelModel');
+      const imovelModel = new ImovelModel();
+      const imovel = await imovelModel.obter(contrato.idImovel);
+      const refImovel = imovel?.refImovel || '';
+
+      // 5) Valor
       const valor = Number(pagamento.valorPagamento);
 
-      // 5) Montar payload
+      // 6) Montar payload
+      let infoAdic = `${pagamento.idPagamento} - ${refImovel}`;
+      infoAdic = infoAdic.replace(/[^a-zA-Z0-9-]/g, '').replace(/\s+/g, '');
+
       const payload = buildPayloadPix({
         tipoPixNome,
         chavePix: dadosPix.chavePix,
         nomeRecebedor: dadosPix.nomePix,
         cidade: dadosPix.cidade,
-        valor: valorCorrigido,
-        infoAdic: `${aluguel.idAluguel} - ${aluguel.idImovel}`,
+        valor: valor,
+        infoAdic,
       });
 
       return res.status(200).json({
         payload,
-        valor,
         dataPagamento: pagamento.dataPagamento,
         recebedorNome: dadosPix.nomePix,
         chavePix: dadosPix.chavePix,
-        tipoPixNome
+        tipoPixNome,
+        cidade: dadosPix.cidade,
+        infoAdic,
+        idPagamento: pagamento.idPagamento,
+        refImovel
       });
 
     } catch (e) {
@@ -316,6 +335,7 @@ class PixController {
       return res.status(500).json({ message: "Erro ao gerar payload Pix do pagamento avulso." });
     }
   }
+
 
   // GET /pix/qrcode/avulso/:idPagamento.png
   async qrcodeAvulso(req, res) {
@@ -465,8 +485,7 @@ class PixController {
       chavePix: dadosPix.chavePix,
       nomeRecebedor: dadosPix.nomePix,
       cidade: dadosPix.cidade,
-      valor: valorCorrigido,
-      infoAdic: `${aluguel.idAluguel} - ${aluguel.idImovel}`,
+      valor: valor,
     });
 
     return { payload, valor, dataPagamento: pagamento.dataPagamento, recebedorNome: dadosPix.nomePix, chavePix: dadosPix.chavePix };
