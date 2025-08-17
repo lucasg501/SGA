@@ -87,24 +87,31 @@ class LocatarioModel {
 
     async gravar() {
         try {
-            if (this.#idLocatario == 0) {
-                let sql = "insert into locatario (nomeLocatario, cpfLocatario) values (?, ?)";
-                let valores = [this.#nomeLocatario, this.#cpfLocatario];
-                let ok = await banco.ExecutaComandoNonQuery(sql, valores);
-                return ok;
+            let sql = "select * from locatario where cpfLocatario = ?";
+            let valores = [this.#cpfLocatario];
+            let rows = await banco.ExecutaComando(sql, valores);
+            if (rows.length > 0) {
+                return false;
             } else {
-                let sql = "update locatario set nomeLocatario = ?, cpfLocatario = ? where idLocatario = ?";
-                let valores = [this.#nomeLocatario, this.#cpfLocatario, this.#idLocatario];
-                let ok = await banco.ExecutaComandoNonQuery(sql, valores);
-                return ok;
+                if (this.#idLocatario == 0) {
+                    let sql = "insert into locatario (nomeLocatario, cpfLocatario) values (?, ?)";
+                    let valores = [this.#nomeLocatario, this.#cpfLocatario];
+                    let ok = await banco.ExecutaComandoNonQuery(sql, valores);
+                    return ok;
+                } else {
+                    let sql = "update locatario set nomeLocatario = ?, cpfLocatario = ? where idLocatario = ?";
+                    let valores = [this.#nomeLocatario, this.#cpfLocatario, this.#idLocatario];
+                    let ok = await banco.ExecutaComandoNonQuery(sql, valores);
+                    return ok;
+                }
             }
-        }catch(e) {
+        } catch (e) {
             console.error("Erro ao gravar locatário:", e);
             return false;
         }
     }
 
-    async excluir(idLocatario){
+    async excluir(idLocatario) {
         try {
             let sql = "delete from locatario where idLocatario = ?";
             let valores = [idLocatario];

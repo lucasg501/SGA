@@ -68,6 +68,12 @@ function LayoutContent({ children }) {
                         <span>Pagamento Avulso</span>
                     </Link>
                 </li>
+                <li className="nav-item">
+                    <Link className="nav-link" href="/admin/locatario">
+                        <i className="fas fa-solid fa-users"></i>
+                        <span>Locatários</span>
+                    </Link>
+                </li>
             </ul>
 
             {/* Topbar + Conteúdo */}

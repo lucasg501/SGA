@@ -135,10 +135,19 @@ export default function Alugueis() {
                                 <label>Selecione um contrato:</label>
                                 <select
                                     className="form-control"
-                                    onChange={e => setContratoSelecionado(Number(e.target.value))}
+                                    onChange={e => {
+                                        const selectedId = Number(e.target.value);
+                                        setContratoSelecionado(selectedId);
+
+                                        // Verifica se o contrato está inativo
+                                        const contrato = listaContratos.find(c => c.idContrato === selectedId);
+                                        if (contrato && contrato.ativo === "N") {
+                                            alert(`Atenção! O contrato #${selectedId} está inativo.`);
+                                        }
+                                    }}
                                     value={contratoSelecionado || ''}
                                 >
-                                    <option >Selecione um contrato</option>
+                                    <option>Selecione um contrato</option>
                                     {Object.keys(alugueisPorContrato).map(idContrato => {
                                         const idImovel = acharIdImovelPorContrato(Number(idContrato));
                                         return (
@@ -155,6 +164,7 @@ export default function Alugueis() {
                                     </button>
                                 )}
                             </div>
+
                         )}
 
                         {(filtroRef ? alugueisArray : (contratoSelecionado ? alugueisPorContrato[contratoSelecionado] : []))?.length > 0 && (

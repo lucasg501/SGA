@@ -47,6 +47,8 @@ class LocatarioController {
                 let ok = await locatario.gravar();
                 if (ok) {
                     res.status(200).json({ message: "Locatario gravado com sucesso." });
+                } else if (ok == false) {
+                    res.status(500).json({ message: "Erro ao gravar locatario. Ja existe um locatário com esse CPF cadastrado." });;
                 } else {
                     res.status(500).json({ message: "Erro ao gravar locatario." });
                 }
@@ -67,7 +69,7 @@ class LocatarioController {
                 locatario.idLocatario = req.body.idLocatario;
                 locatario.nomeLocatario = req.body.nomeLocatario;
                 locatario.cpfLocatario = req.body.cpfLocatario;
-                let ok = await locatario.alterar();
+                let ok = await locatario.gravar();
                 if (ok) {
                     res.status(200).json({ message: "Locatario alterado com sucesso." });
                 } else {
@@ -86,15 +88,16 @@ class LocatarioController {
         try {
             if (req.params.idLocatario > 0) {
                 let locatario = new LocatarioModel();
-                locatario.idLocatario = req.params.idLocatario;
-                let ok = await locatario.excluir();
+                let ok = await locatario.excluir(req.params.idLocatario);
                 if (ok) {
                     res.status(200).json({ message: "Locatario excluido com sucesso." });
+                } else if (ok == false) {
+                    res.status(500).json({ message: "Erro ao excluir locatario. Locatário pode possuir alugueis ou contratos em aberto!" });
                 } else {
                     res.status(500).json({ message: "Erro ao excluir locatario." });
                 }
             } else {
-                res.status(400).json({ message: "Par\u00E2metros inv\u00E1lidos." });
+                res.status(400).json({ message: "Parâmetros Inválidos." });
             }
         } catch (e) {
             console.error("Erro ao excluir locatario:", e);

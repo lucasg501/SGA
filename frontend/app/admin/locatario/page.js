@@ -35,13 +35,30 @@ export default function Locatario() {
         return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     }
 
+    function excluirLocatario(idLocatario){
+        let status = 0;
+        httpClient.delete(`/locatario/excluir/${idLocatario}`)
+        .then(r=>{
+            status = r.status;
+            return r.json();
+        })
+        .then(r=>{
+            if(status == 200){
+                alert(r.message);
+                listarLocatarios();
+            }else{
+                alert(r.message);
+            }
+        })
+    }
+
     return (
         <div>
             <h1>Locatarios</h1>
 
             <div>
                 <Link href="/admin/locatario/gravar">
-                    <button className="btn btn-primary">Novo Locatário</button>
+                    <button style={{margin: 10}} className="btn btn-primary">Novo Locatário</button>
                 </Link>
             </div>
 
@@ -69,7 +86,7 @@ export default function Locatario() {
                                             </Link>
                                         </td>
                                         <td>
-                                            <button className="btn btn-danger">Excluir</button>
+                                            <button onClick={()=>excluirLocatario(value.idLocatario)} className="btn btn-danger">Excluir</button>
                                         </td>
                                     </tr>
                                 )

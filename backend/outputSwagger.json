@@ -575,6 +575,78 @@
         }
       }
     },
+    "/locatario/gravar": {
+      "post": {
+        "tags": [
+          "Locatarios"
+        ],
+        "summary": "Adiciona um locatario",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/locatario"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locatario/alterar": {
+      "put": {
+        "tags": [
+          "Locatarios"
+        ],
+        "summary": "Altera um locatario",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/locatario"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locatario/excluir/{idLocatario}": {
+      "delete": {
+        "tags": [
+          "Locatarios"
+        ],
+        "summary": "Exclui um locatario",
+        "description": "",
+        "parameters": [
+          {
+            "name": "idLocatario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/tiposPix/listar": {
       "get": {
         "tags": [
@@ -969,6 +1041,9 @@
           },
           "juros": {
             "type": "undefined"
+          },
+          "ativo": {
+            "type": "undefined"
           }
         }
       },
@@ -1055,11 +1130,11 @@
           },
           "nomeLocatario": {
             "type": "string",
-            "example": "111.111.111-11"
+            "example": "Rodolfinho"
           },
           "cpfLocatario": {
             "type": "string",
-            "example": "Rodolfinho"
+            "example": "111.111.111-11"
           }
         }
       },

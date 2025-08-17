@@ -8,7 +8,7 @@ export default function ContratoComponent(props) {
         idContrato: 0, idImovel: 0, idLocatario: 0, idLocador: 0,
         qtdParcelas: 0, valorParcela: 0, dataVencimento: '',
         inicioVigenciaContrato: '', fimVigenciaContrato: '',
-        multa: 0, juros: 0
+        multa: 0, juros: 0, ativo: false
     });
 
     const [listaImoveis, setListaImoveis] = useState([]);
@@ -28,6 +28,14 @@ export default function ContratoComponent(props) {
     const fimVigenciaContrato = useRef(null);
     const multa = useRef(null);
     const juros = useRef(null);
+    const ativo = useState(false);
+
+    function handleAtivoChange() {
+        setContrato(prev => ({
+            ...prev,
+            ativo: !prev.ativo
+        }));
+    }
 
     function formatDateToInput(date) {
         if (!date) return '';
@@ -66,7 +74,8 @@ export default function ContratoComponent(props) {
                 inicioVigenciaContrato: formatDateToInput(props.contrato.inicioVigenciaContrato),
                 fimVigenciaContrato: formatDateToInput(props.contrato.fimVigenciaContrato),
                 multa: props.contrato.multa ?? 0,
-                juros: props.contrato.juros ?? 0
+                juros: props.contrato.juros ?? 0,
+                ativo: props.contrato.ativo
             });
             setMultaStr(formatPercentDisplayFromNumber(props.contrato.multa));
             setJurosStr(formatPercentDisplayFromNumber(props.contrato.juros));
@@ -132,6 +141,11 @@ export default function ContratoComponent(props) {
         if (contrato.inicioVigenciaContrato > contrato.fimVigenciaContrato) {
             alert('A data de inicio da vigência do contrato deve ser menor que a data de fim da vigência do contrato.');
         } else {
+            if (contrato.ativo == false) {
+                contrato.ativo = 'N';
+            } else {
+                contrato.ativo = 'S';
+            }
             let status = 0;
             httpClient.post('/contratos/gravar', {
                 idImovel: contrato.idImovel,
@@ -143,7 +157,8 @@ export default function ContratoComponent(props) {
                 inicioVigenciaContrato: contrato.inicioVigenciaContrato,
                 fimVigenciaContrato: contrato.fimVigenciaContrato,
                 multa: contrato.multa,
-                juros: contrato.juros
+                juros: contrato.juros,
+                ativo: contrato.ativo
             }).then(r => {
                 status = r.status;
                 return r.json();
@@ -162,6 +177,11 @@ export default function ContratoComponent(props) {
         if (contrato.inicioVigenciaContrato > contrato.fimVigenciaContrato) {
             alert('A data de inicio da vigência do contrato deve ser menor que a data de fim da vigência do contrato.');
         } else {
+            if (contrato.ativo == false) {
+                contrato.ativo = 'N';
+            } else {
+                contrato.ativo = 'S';
+            }
             let status = 0;
             httpClient.put('/contratos/alterar', {
                 idContrato: contrato.idContrato,
@@ -174,7 +194,8 @@ export default function ContratoComponent(props) {
                 inicioVigenciaContrato: contrato.inicioVigenciaContrato,
                 fimVigenciaContrato: contrato.fimVigenciaContrato,
                 multa: contrato.multa,
-                juros: contrato.juros
+                juros: contrato.juros,
+                ativo: contrato.ativo
             }).then(r => {
                 status = r.status;
                 return r.json();
@@ -399,6 +420,20 @@ export default function ContratoComponent(props) {
                             />
                         </div>
                     </div>
+
+                    <div style={{ marginLeft: '50px' }} className="form-group form-check form-switch">
+                        <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="ativoSwitch"
+                            checked={contrato.ativo}
+                            onChange={handleAtivoChange}
+                        />
+                        <label className="form-check-label" htmlFor="ativoSwitch">
+                            Ativo
+                        </label>
+                    </div>
+
                 </div>
 
                 <div className="form-group mt-3">

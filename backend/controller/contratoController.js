@@ -51,6 +51,7 @@ class ContratoController {
                 contrato.fimVigenciaContrato = req.body.fimVigenciaContrato;
                 contrato.multa = req.body.multa;
                 contrato.juros = req.body.juros;
+                contrato.ativo = req.body.ativo;
 
                 let ok = await contrato.gravar();
                 if (ok === true) {
@@ -84,6 +85,7 @@ class ContratoController {
                 contrato.fimVigenciaContrato = req.body.fimVigenciaContrato;
                 contrato.multa = req.body.multa;
                 contrato.juros = req.body.juros;
+                contrato.ativo = req.body.ativo;
 
                 let ok = await contrato.gravar();
                 if (ok) {

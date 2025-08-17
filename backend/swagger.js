@@ -30,7 +30,7 @@ const doc = {
             aluguel: new AluguelModel(0,1000,'N',1, 1, '02/14/2025').toJSON(),
             imovel: new ImovelModel(0,'AP1010',1000,1,1).toJSON(),
             locador: new LocadorModel(1,'111.111.111-11', 'Alfredo').toJSON(),
-            locatario: new LocatarioModel(1,'111.111.111-11', 'Rodolfinho').toJSON(),
+            locatario: new LocatarioModel(1,'Rodolfinho', '111.111.111-11').toJSON(),
             tiposPix: new TiposPixModel(1,'Telefone').toJSON(),
             pagamentoAvulso: new PagamentoAvulsoModel(1,1000,'2025-08-14','N',1).toJSON()
         }

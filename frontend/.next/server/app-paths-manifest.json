@@ -1,4 +1,9 @@
 {
-  "/admin/locatario/page": "app/admin/locatario/page.js",
-  "/admin/locatario/gravar/page": "app/admin/locatario/gravar/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/admin/contratos/alterar/[idContrato]/page": "app/admin/contratos/alterar/[idContrato]/page.js",
+  "/admin/alugueis/page": "app/admin/alugueis/page.js",
+  "/admin/contratos/page": "app/admin/contratos/page.js",
+  "/admin/alugueis/gravar/page": "app/admin/alugueis/gravar/page.js"
 }

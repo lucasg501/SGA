@@ -107,7 +107,16 @@ class AluguelModel {
             let dados = await banco.ExecutaComando(sqlBusca, [this.#idContrato]);
 
             if (dados.length === 0) {
-                throw new Error('Contrato não encontrado para o idContrato: ' + this.#idContrato);
+                console.log('Contrato não encontrado para o idContrato:', this.#idContrato);
+                return false; // cancela
+            }
+
+            let sql = "select * from contrato where idContrato = ?";
+            let retorno = await banco.ExecutaComando(sql, [this.#idContrato]);
+
+            if(retorno[0].ativo == "N"){
+                console.log('Contrato inativo para o idContrato:', this.#idContrato);
+                return false;
             }
 
             let qtdParcelas = dados[0].qtdParcelas;

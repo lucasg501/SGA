@@ -10,6 +10,7 @@ export default function Contratos() {
     const [listaLocatarios, setListaLocatarios] = useState([]);
     const [listaLocadores, setListaLocadores] = useState([]);
     const [listaImoveis, setListaImoveis] = useState([]);
+    const [expandedRows, setExpandedRows] = useState([]);
 
     function listarContratos() {
         let status = 0;
@@ -42,6 +43,30 @@ export default function Contratos() {
                 }
             })
     }
+
+    function acharVencidos() {
+        const hoje = new Date().toISOString().split('T')[0];
+        const vencidos = contratos
+            .filter(c => c.fimVigenciaContrato < hoje)
+            .map(c => c.idContrato);
+
+        if (vencidos.length > 0) {
+            alert(`Existem ${vencidos.length} contratos vencidos.`);
+            const desejaDarBaixa = confirm('Deseja dar baixa nesses contratos?');
+            if (desejaDarBaixa) {
+                vencidos.forEach(id => {
+                    window.location.href = `/admin/contratos/alterar/${id}`;
+                });
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (contratos.length > 0) {
+            acharVencidos();
+        }
+    }, [contratos]); // roda sempre que contratos mudar
+
 
     function listarLocadores() {
         let status = 0;
@@ -119,6 +144,14 @@ export default function Contratos() {
             })
     }
 
+    function toggleRow(id) {
+        if (expandedRows.includes(id)) {
+            setExpandedRows(expandedRows.filter(rowId => rowId !== id));
+        } else {
+            setExpandedRows([...expandedRows, id]);
+        }
+    }
+
     return (
         <div>
             <h1>Contratos</h1>
@@ -136,10 +169,9 @@ export default function Contratos() {
                 </div>
             </div>
 
-
             <div>
                 <table className="table table-striped">
-                    <thead>
+                    <thead style={{ textAlign: 'center' }}>
                         <tr>
                             <th>ID</th>
                             <th>Id do Imóvel</th>
@@ -152,44 +184,76 @@ export default function Contratos() {
                             <th>Vencimento</th>
                             <th>Inicio contrato</th>
                             <th>Fim contrato</th>
+                            <th>Ativo</th>
                             <th>Alterar</th>
                             <th>Pag.Avulso</th>
+                            <th>+</th>
                         </tr>
-
                     </thead>
 
                     <tbody>
-                        {
-                            contratos.map(function (value, index) {
-                                return (
-                                    <tr key={index}>
-                                        <td>{value.idContrato}</td>
-                                        <td>{buscarImovel(value.idImovel)}</td>
-                                        <td>{buscarLocatario(value.idLocatario)}</td>
-                                        <td>{buscarLocador(value.idLocador)}</td>
-                                        <td>{value.qtdParcelas}</td>
-                                        <td>R${value.valorParcela}</td>
-                                        <td>%{value.multa}</td>
-                                        <td>%{value.juros}</td>
-                                        <td>Dia: {formatarDataVencimento(value.dataVencimento)}</td>
-                                        <td>{new Date(value.inicioVigenciaContrato).toLocaleDateString()}</td>
-                                        <td>{new Date(value.fimVigenciaContrato).toLocaleDateString()}</td>
-                                        <td>
-                                            <Link href={`/admin/contratos/alterar/${value.idContrato}`}>
-                                                <button className="btn btn-primary">Alterar</button>
-                                            </Link>
-                                        </td>
-                                        <td>
-                                            <Link href={`/admin/pagamentoAvulso/alterar/${value.idContrato}`}>
-                                                <button className="btn btn-success">
-                                                    <i className="fas fa-solid fa-coins"></i>
-                                                </button>
-                                            </Link>
+                        {contratos.map((value) => (
+                            <>
+                                <tr key={value.idContrato}>
+                                    <td>{value.idContrato}</td>
+                                    <td style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={buscarImovel(value.idImovel)}>
+                                        {buscarImovel(value.idImovel)}
+                                    </td>
+                                    <td style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={buscarLocatario(value.idLocatario)}>
+                                        {buscarLocatario(value.idLocatario)}
+                                    </td>
+                                    <td style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={buscarLocador(value.idLocador)}>
+                                        {buscarLocador(value.idLocador)}
+                                    </td>
+                                    <td>{value.qtdParcelas}</td>
+                                    <td>R${value.valorParcela}</td>
+                                    <td>%{value.multa}</td>
+                                    <td>%{value.juros}</td>
+                                    <td>Dia: {formatarDataVencimento(value.dataVencimento)}</td>
+                                    <td>{new Date(value.inicioVigenciaContrato).toLocaleDateString()}</td>
+                                    <td>{new Date(value.fimVigenciaContrato).toLocaleDateString()}</td>
+                                    <td>{value.ativo === "S" ? 'Sim' : 'Não'}</td>
+                                    <td>
+                                        <Link href={`/admin/contratos/alterar/${value.idContrato}`}>
+                                            <button className="btn btn-primary">Alterar</button>
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        <Link href={`/admin/pagamentoAvulso/alterar/${value.idContrato}`}>
+                                            <button className="btn btn-success">
+                                                <i className="fas fa-solid fa-coins"></i>
+                                            </button>
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-secondary btn-sm" onClick={() => toggleRow(value.idContrato)}>
+                                            {expandedRows.includes(value.idContrato) ? '−' : '+'}
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                {expandedRows.includes(value.idContrato) && (
+                                    <tr>
+                                        <td colSpan="15">
+                                            <div style={{ padding: '10px', background: '#f9f9f9' }}>
+                                                <strong>Detalhes completos:</strong><br />
+                                                Imóvel: {buscarImovel(value.idImovel)}<br />
+                                                Locatário: {buscarLocatario(value.idLocatario)}<br />
+                                                Locador: {buscarLocador(value.idLocador)}<br />
+                                                Quantidade de Parcelas: {value.qtdParcelas}<br />
+                                                Valor das Parcelas: R${value.valorParcela}<br />
+                                                Multa: %{value.multa}<br />
+                                                Juros: %{value.juros}<br />
+                                                Vencimento: {formatarDataVencimento(value.dataVencimento)}<br />
+                                                Início contrato: {new Date(value.inicioVigenciaContrato).toLocaleDateString()}<br />
+                                                Fim contrato: {new Date(value.fimVigenciaContrato).toLocaleDateString()}<br />
+                                                Ativo: {value.ativo === "S" ? 'Sim' : 'Não'}
+                                            </div>
                                         </td>
                                     </tr>
-                                )
-                            })
-                        }
+                                )}
+                            </>
+                        ))}
                     </tbody>
                 </table>
             </div>

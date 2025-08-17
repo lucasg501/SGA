@@ -117,7 +117,7 @@ class AluguelController {
                 if (ok === true) {
                     res.status(200).json({ msg: "Aluguel gravado com sucesso." });
                 } else if (ok === false) {
-                    res.status(400).json({ msg: "Aluguel ja existente." });
+                    res.status(400).json({ msg: "Aluguel ja existente ou contrato inativo." });
                 } else {
                     res.status(500).json({ msg: "Erro ao gravar aluguel." });
                 }
