@@ -41,14 +41,9 @@ export default function Home() {
       })
       .then(r => {
         if (status === 200) {
-          // Converte multa e juros para número
-          const contrato = {
-            ...r,
-            multa: parseFloat(r.multa) || 0,
-            juros: parseFloat(r.juros) || 0
-          };
-          setListaContrato([contrato]);       // manter como lista caso precise
-          setContratoSelecionado(contrato);   // contrato individual
+          const contrato = { ...r, multa: parseFloat(r.multa) || 0, juros: parseFloat(r.juros) || 0 };
+          setListaContrato([contrato]);
+          setContratoSelecionado(contrato);
         } else {
           alert(r.msg);
         }
@@ -58,7 +53,6 @@ export default function Home() {
         alert('Erro ao acessar backend.');
       });
   }
-
 
   function formatarCPF(valor) {
     return valor
@@ -158,7 +152,6 @@ export default function Home() {
     return parseFloat(valorOriginal) + multa + juros;
   }
 
-
   const copiar = async (texto) => {
     try {
       await navigator.clipboard.writeText(texto);
@@ -172,37 +165,23 @@ export default function Home() {
 
   // ----------- Renderização -----------
   return (
-    <div style={{ width: '100vw', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1 style={{ textAlign: "center" }}>Verificar as parcelas pelo CPF</h1>
+    <div className="container-fluid" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 20 }}>
+      <h1 className="text-center mb-4">Verificar as parcelas pelo CPF</h1>
 
       {/* Formulário CPF centralizado */}
       {listaParcelas.length === 0 && (
-        <div style={{
-          width: "400px",
-          margin: "20px auto",
-          border: "1px solid #ccc",
-          padding: "10px",
-          borderRadius: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }} className="form form-group">
+        <div className="form form-group p-4 mb-4" style={{ width: "400px", border: "1px solid #ccc", borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <label>Informe seu CPF</label>
           <input
             type="text"
-            className="form-control"
+            className="form-control text-center"
             placeholder="000.000.000-00"
             value={cpfFormatado}
             onChange={handleChangeCPF}
             ref={cpfLocatario}
             maxLength={14}
-            style={{ textAlign: 'center' }}
           />
-          <button
-            style={{ marginTop: "10px", width: "100%" }}
-            className="btn btn-primary"
-            onClick={() => procurarParcelas(cpfFormatado)}
-          >
+          <button className="btn btn-primary mt-3 w-100" onClick={() => procurarParcelas(cpfFormatado)}>
             Procurar
           </button>
         </div>
@@ -210,67 +189,58 @@ export default function Home() {
 
       {/* Botão para novo CPF */}
       {listaParcelas.length > 0 && (
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <button style={{ margin: 10 }} onClick={() => { window.location.reload() }} className="btn btn-primary">Novo CPF</button>
+        <div className="text-center mb-3">
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Novo CPF</button>
         </div>
       )}
 
       {/* Tabelas centralizadas */}
       {listaPagAvulso.length > 0 && (
-        <div style={{ width: '95%', margin: '0 auto', marginBottom: 20, textAlign: 'center' }}>
+        <div className="mb-4 w-100 text-center">
           <h3>Pagamentos Avulsos</h3>
-        <div style={{
-          width: "95%",
-          margin: "20px auto",
-          padding: 16,
-          border: '1px solid #ccc',
-          borderRadius: 10,
-          background: '#f9fafb',
-          display: 'flex',
-          justifyContent: 'center'
-        }}>
-          <table className="table table-striped" style={{ width: '100%' }}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Valor</th>
-                <th>Data</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th>PIX</th>
-              </tr>
-            </thead>
-            <tbody>
-              {listaPagAvulso.map((pagamento) => {
-                const pendente = pagamento.pago === 'n' || pagamento.pago === 'N' || pagamento.pago === null;
-                return (
-                  <tr key={pagamento.idPagamento}>
-                    <td>{pagamento.idPagamento}</td>
-                    <td>R$ {parseFloat(pagamento.valorPagamento).toFixed(2)}</td>
-                    <td>{new Date(pagamento.dataPagamento).toLocaleDateString('pt-BR')}</td>
-                    <td>{pagamento.descricao}</td>
-                    <td style={{ color: pendente ? 'red' : 'green', fontWeight: 'bold' }}>
-                      {pendente ? 'Aberto' : 'Pago'}
-                    </td>
-                    <td>
-                      <button disabled={!pendente} className="btn btn-primary" onClick={() => abrirQrModal(pagamento, true)}>
-                        Gerar QR Code
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+          <div className="table-responsive p-3" style={{ background: '#f9fafb', borderRadius: 10, border: '1px solid #ccc' }}>
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Valor</th>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th>PIX</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaPagAvulso.map((pagamento) => {
+                  const pendente = pagamento.pago === 'n' || pagamento.pago === 'N' || pagamento.pago === null;
+                  return (
+                    <tr key={pagamento.idPagamento}>
+                      <td>{pagamento.idPagamento}</td>
+                      <td>R$ {parseFloat(pagamento.valorPagamento).toFixed(2)}</td>
+                      <td>{new Date(pagamento.dataPagamento).toLocaleDateString('pt-BR')}</td>
+                      <td>{pagamento.descricao}</td>
+                      <td style={{ color: pendente ? 'red' : 'green', fontWeight: 'bold' }}>
+                        {pendente ? 'Aberto' : 'Pago'}
+                      </td>
+                      <td>
+                        <button disabled={!pendente} className="btn btn-primary" onClick={() => abrirQrModal(pagamento, true)}>
+                          Gerar QR Code
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {listaParcelas.length > 0 && (
-        <div style={{ width: '95%', margin: '0 auto', marginBottom: 20 }}>
-          <h3 style={{ textAlign: 'center', marginBottom: 10 }}>Aluguéis</h3>
-          <div style={{ width: '95%', display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-            <table className="table table-striped" style={{ width: '100%', border: "1px solid #ccc", borderRadius: 10, padding: 10 }}>
+        <div className="mb-4 w-100">
+          <h3 className="text-center mb-3">Aluguéis</h3>
+          <div className="table-responsive p-3" style={{ border: "1px solid #ccc", borderRadius: 10 }}>
+            <table className="table table-striped">
               <thead>
                 <tr>
                   <th>Parcela</th>
@@ -315,44 +285,28 @@ export default function Home() {
 
       {/* ---------- Modal completo com QR e inputs centralizados ---------- */}
       {parcelaQRAtiva && (
-        <div onClick={fecharModal} style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: 16
+        <div onClick={fecharModal} className="d-flex justify-content-center align-items-center" style={{
+          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, padding: 16
         }}>
           <div role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} style={{
-            backgroundColor: '#f5f7fb',
-            borderRadius: 12,
-            boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
-            width: '95%',
-            maxWidth: 1200,
-            maxHeight: '100vh',
-            overflow: 'auto',
-            padding: 32,
-            textAlign: 'left',
-            position: 'relative',
-            border: '1px solid #e5e7eb',
-            fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'
+            backgroundColor: '#f5f7fb', borderRadius: 12, boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+            width: '95%', maxWidth: 1200, maxHeight: '100vh', overflow: 'auto', padding: 32, textAlign: 'left',
+            position: 'relative', border: '1px solid #e5e7eb', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif'
           }}>
             {/* Cabeçalho */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
               <div>
-                <h2 style={{ margin: 0, fontSize: 20, color: '#111827' }}>Cobrança</h2>
+                <h2 className="mb-0" style={{ fontSize: 20, color: '#111827' }}>Cobrança</h2>
                 <div style={{ color: '#6b7280', fontSize: 13 }}>Pagamento via Pix • Parcela #{parcelaQRAtiva.index + 1 || parcelaQRAtiva.idPagamento}</div>
               </div>
               <button className="btn btn-secondary" onClick={fecharModal} aria-label="Fechar">Fechar</button>
             </div>
 
             {/* Dados da cobrança */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 12 }}>
-              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Valor</div>
-                <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>
+            <div className="d-grid gap-3 mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+              <div className="p-3" style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12 }}>
+                <div className="text-muted" style={{ fontSize: 12, marginBottom: 4 }}>Valor</div>
+                <div className="fw-bold" style={{ fontSize: 16, color: '#111827' }}>
                   R$ {parcelaQRAtiva.valorPagamento
                     ? parseFloat(parcelaQRAtiva.valorPagamento).toFixed(2)
                     : calcularValorComMulta(
@@ -363,39 +317,30 @@ export default function Home() {
                     ).toFixed(2)}
                 </div>
               </div>
-              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Vencimento</div>
-                <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{formatarData(parcelaQRAtiva.dataVencimento || parcelaQRAtiva.dataPagamento)}</div>
+              <div className="p-3" style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12 }}>
+                <div className="text-muted" style={{ fontSize: 12, marginBottom: 4 }}>Vencimento</div>
+                <div className="fw-bold" style={{ fontSize: 16, color: '#111827' }}>{formatarData(parcelaQRAtiva.dataVencimento || parcelaQRAtiva.dataPagamento)}</div>
               </div>
             </div>
 
             {/* Dados do recebedor */}
             {dadosPix && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 12 }}>
-                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Recebedor</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.nomePix}</div>
+              <div className="d-grid gap-3 mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+                <div className="p-3" style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12 }}>
+                  <div className="text-muted" style={{ fontSize: 12, marginBottom: 4 }}>Recebedor</div>
+                  <div className="fw-bold" style={{ fontSize: 16, color: '#111827' }}>{dadosPix.nomePix}</div>
                 </div>
-                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Chave Pix</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.chavePix}</div>
+                <div className="p-3" style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12 }}>
+                  <div className="text-muted" style={{ fontSize: 12, marginBottom: 4 }}>Chave Pix</div>
+                  <div className="fw-bold" style={{ fontSize: 16, color: '#111827' }}>{dadosPix.chavePix}</div>
                 </div>
               </div>
             )}
 
             {/* QR Code e Copia e Cola */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-              <div style={{
-                background: '#fff',
-                border: '1px solid #e5e7eb',
-                borderRadius: 12,
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 12
-              }}>
-                <div style={{ fontWeight: 700, color: '#111827' }}>Pagamento via Pix</div>
+            <div className="d-flex flex-wrap justify-content-center gap-4">
+              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                <div className="fw-bold text-dark">Pagamento via Pix</div>
                 {parcelaQRAtiva && (
                   <iframe
                     src={parcelaQRAtiva.idPagamento
@@ -409,8 +354,8 @@ export default function Home() {
 
               <div style={{ flex: 1, minWidth: 300 }}>
                 <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontWeight: 700, color: '#111827', marginBottom: 8 }}>Pix Copia e Cola</div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div className="fw-bold mb-2 text-dark">Pix Copia e Cola</div>
+                  <div className="d-flex gap-2">
                     <textarea
                       readOnly
                       value={parcelaQRAtiva.payloadPix || ''}
@@ -430,16 +375,8 @@ export default function Home() {
                     />
                     <button
                       onClick={() => copiar(parcelaQRAtiva.payloadPix || '')}
-                      style={{
-                        border: '1px solid #2563eb',
-                        background: '#2563eb',
-                        color: '#fff',
-                        padding: '10px 14px',
-                        borderRadius: 10,
-                        cursor: 'pointer',
-                        fontWeight: 700,
-                        minWidth: 120
-                      }}
+                      className="btn btn-primary"
+                      style={{ minWidth: 120 }}
                     >
                       Copiar
                     </button>

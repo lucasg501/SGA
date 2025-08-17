@@ -1,8 +1,8 @@
-// File: C:\Users\lucas\OneDrive\Documentos\Projetos\SGA\frontend\app\admin\pagamentoAvulso\alterar\[idContrato]\page.js
-import * as entry from '../../../../../../../app/admin/pagamentoAvulso/alterar/[idContrato]/page.js'
+// File: C:\Users\lucas\OneDrive\Documentos\Projetos\SGA\frontend\app\admin\alugueis\page.js
+import * as entry from '../../../../../app/admin/alugueis/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-type TEntry = typeof import('../../../../../../../app/admin/pagamentoAvulso/alterar/[idContrato]/page.js')
+type TEntry = typeof import('../../../../../app/admin/alugueis/page.js')
 
 type SegmentParams<T extends Object = any> = T extends Record<string, any>
   ? { [K in keyof T]: T[K] extends string ? string | string[] | undefined : never }

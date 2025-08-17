@@ -173,16 +173,23 @@ export default function AdminLayout({ children }) {
 
       <button
         onClick={() => setGraficoAberto(!graficoAberto)}
-        style={{marginBottom: '10px',padding: '6px 12px',backgroundColor: '#007bff',color: 'white',border: 'none',borderRadius: '4px',cursor: 'pointer'}}>
+        style={{ marginBottom: '10px', padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
         {graficoAberto ? 'Minimizar Gráfico' : 'Mostrar Gráfico'}
       </button>
 
       {graficoAberto && (
         <div style={{ maxWidth: '500px', marginBottom: '20px' }}>
           <h3>Aluguéis Vencidos vs Em Aberto</h3>
-          <Pie data={dataPie} />
+          {alugueisVencidos === 0 && alugueisEmAberto === 0 ? (
+            <p style={{ textAlign: 'center', color: 'green', fontWeight: 'bold' }}>
+              Todos os aluguéis estão pagos 🎉
+            </p>
+          ) : (
+            <Pie data={dataPie} />
+          )}
         </div>
       )}
+
 
       <div>
         <table className='table table-striped'>
@@ -205,7 +212,7 @@ export default function AdminLayout({ children }) {
             {alugueisDoMes.map((value, index) => (
               <tr key={index}>
                 <td>{procurarRefImovel(value.idContrato) ?? 'Carregando...'}</td>
-                <td style={{color: value.quitada.toLowerCase() === 's' ? 'green': new Date(value.dataVencimento) < hoje ? 'red' : 'inherit', fontWeight: value.quitada.toLowerCase() === 's' ? 'bold' : 'normal'}}>
+                <td style={{ color: value.quitada.toLowerCase() === 's' ? 'green' : new Date(value.dataVencimento) < hoje ? 'red' : 'inherit', fontWeight: value.quitada.toLowerCase() === 's' ? 'bold' : 'normal' }}>
                   {formatarData(value.dataVencimento)}
                   {value.quitada.toLowerCase() === 's' ? ' - Quitada' : new Date(value.dataVencimento) < hoje ? ' - Vencida' : ''}
                 </td>

@@ -41,43 +41,88 @@ class UsuarioModel {
     }
 
     async gravarChave(chavePix, nomePix, cidade, tipoPix) {
-        let sql = "UPDATE usuario SET chavePix = ?, nomePix = ?, cidade = ?, tipoPix = ? WHERE idUsuario = 1";
-        let valores = [chavePix, nomePix, cidade, tipoPix];
-        let ok = await banco.ExecutaComandoNonQuery(sql, valores);
-        return ok;
+        try {
+            let sql = "UPDATE usuario SET chavePix = ?, nomePix = ?, cidade = ?, tipoPix = ? WHERE idUsuario = 1";
+            let valores = [chavePix, nomePix, cidade, tipoPix];
+            let ok = await banco.ExecutaComandoNonQuery(sql, valores);
+            return ok;
+        } catch (e) {
+            console.error("Erro ao gravar chave do usuário:", e);
+            return false;
+        }
     }
 
     async listarChave() {
-        let sql = "select * from usuario where idUsuario = 1";
-        let rows = await banco.ExecutaComando(sql);
-        let lista = [];
-        if(rows.length > 0){
-            lista.push(new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade'], rows[0]['tipoPix']));
+        try {
+            let sql = "select * from usuario where idUsuario = 1";
+            let rows = await banco.ExecutaComando(sql);
+            let lista = [];
+            if (rows.length > 0) {
+                lista.push(new UsuarioModel(
+                    rows[0]['idUsuario'],
+                    rows[0]['login'],
+                    rows[0]['senha'],
+                    rows[0]['chavePix'],
+                    rows[0]['nomePix'],
+                    rows[0]['cidade'],
+                    rows[0]['tipoPix']
+                ));
+            }
+            return lista;
+        } catch (e) {
+            console.error("Erro ao listar chave do usuário:", e);
+            return [];
         }
-        return lista;
     }
 
     async autenticar(login, senha) {
-        let sql = "select * from usuario where login = ? and senha = ?";
-        let valores = [login, senha];
-        let rows = await banco.ExecutaComando(sql, valores);
-        if (rows.length > 0)
-            return new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade'], rows[0]['tipoPix']);
-        else
-            return null;
-    }
-
-    async obter(idUsuario){
-        let sql = "select * from usuario where idUsuario = ?";
-        let valores = [idUsuario];
-        let rows = await banco.ExecutaComando(sql, valores);
-        if(rows.length > 0){
-            let usuario = new UsuarioModel(rows[0]['idUsuario'], rows[0]['login'], rows[0]['senha'], rows[0]['chavePix'], rows[0]['nomePix'], rows[0]['cidade'], rows[0]['tipoPix']);
-            return usuario;
-        }else{
+        try {
+            let sql = "select * from usuario where login = ? and senha = ?";
+            let valores = [login, senha];
+            let rows = await banco.ExecutaComando(sql, valores);
+            if (rows.length > 0) {
+                return new UsuarioModel(
+                    rows[0]['idUsuario'],
+                    rows[0]['login'],
+                    rows[0]['senha'],
+                    rows[0]['chavePix'],
+                    rows[0]['nomePix'],
+                    rows[0]['cidade'],
+                    rows[0]['tipoPix']
+                );
+            } else {
+                return null;
+            }
+        } catch (e) {
+            console.error(`Erro ao autenticar usuário ${login}:`, e);
             return null;
         }
     }
+
+    async obter(idUsuario) {
+        try {
+            let sql = "select * from usuario where idUsuario = ?";
+            let valores = [idUsuario];
+            let rows = await banco.ExecutaComando(sql, valores);
+            if (rows.length > 0) {
+                return new UsuarioModel(
+                    rows[0]['idUsuario'],
+                    rows[0]['login'],
+                    rows[0]['senha'],
+                    rows[0]['chavePix'],
+                    rows[0]['nomePix'],
+                    rows[0]['cidade'],
+                    rows[0]['tipoPix']
+                );
+            } else {
+                return null;
+            }
+        } catch (e) {
+            console.error(`Erro ao obter usuário com ID ${idUsuario}:`, e);
+            return null;
+        }
+    }
+
 }
 
 module.exports = UsuarioModel;

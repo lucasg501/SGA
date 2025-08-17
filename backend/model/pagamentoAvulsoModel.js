@@ -37,42 +37,53 @@ class PagamentoAvulsoModel {
     }
 
     async listar() {
-        let sql = "SELECT * FROM pagamentoAvulso";
-        let rows = await banco.ExecutaComando(sql);
-        let lista = [];
-        for (let i = 0; i < rows.length; i++) {
-            lista.push(new PagamentoAvulsoModel(
-                rows[i]['idPagamento'],
-                rows[i]['valorPagamento'],
-                rows[i]['dataPagamento'],
-                rows[i]['pago'],
-                rows[i]['idContrato'],
-                rows[i]['descricao']
-            ));
+        try {
+            let sql = "SELECT * FROM pagamentoAvulso";
+            let rows = await banco.ExecutaComando(sql);
+            let lista = [];
+            for (let i = 0; i < rows.length; i++) {
+                lista.push(new PagamentoAvulsoModel(
+                    rows[i]['idPagamento'],
+                    rows[i]['valorPagamento'],
+                    rows[i]['dataPagamento'],
+                    rows[i]['pago'],
+                    rows[i]['idContrato'],
+                    rows[i]['descricao']
+                ));
+            }
+            return lista;
+        } catch (e) {
+            console.error("Erro ao listar pagamentos avulsos:", e);
+            return null;
         }
-        return lista;
     }
 
     async obter(idPagamento) {
-        let sql = "SELECT * FROM pagamentoAvulso WHERE idPagamento = ?";
-        let valores = [idPagamento];
-        let rows = await banco.ExecutaComando(sql, valores);
-        if (rows.length > 0) {
-            return new PagamentoAvulsoModel(
-                rows[0]['idPagamento'],
-                rows[0]['valorPagamento'],
-                rows[0]['dataPagamento'],
-                rows[0]['pago'],
-                rows[0]['idContrato'],
-                rows[0]['descricao']
-            );
-        } else {
+        try {
+            let sql = "SELECT * FROM pagamentoAvulso WHERE idPagamento = ?";
+            let valores = [idPagamento];
+            let rows = await banco.ExecutaComando(sql, valores);
+            if (rows.length > 0) {
+                return new PagamentoAvulsoModel(
+                    rows[0]['idPagamento'],
+                    rows[0]['valorPagamento'],
+                    rows[0]['dataPagamento'],
+                    rows[0]['pago'],
+                    rows[0]['idContrato'],
+                    rows[0]['descricao']
+                );
+            } else {
+                return null;
+            }
+        } catch (e) {
+            console.error(`Erro ao obter pagamentoAvulso com ID ${idPagamento}:`, e);
             return null;
         }
     }
 
     async obterPorContrato(idContrato) {
-        let sql = `
+        try {
+            let sql = `
         SELECT 
             pa.idPagamento, 
             pa.idContrato,
@@ -86,36 +97,50 @@ class PagamentoAvulsoModel {
         JOIN locatario l ON c.idLocatario = l.idLocatario
         WHERE pa.idContrato = ?
         `;
-        let valores = [idContrato];
-        let rows = await banco.ExecutaComando(sql, valores);
-        let lista = [];
-        for (let i = 0; i < rows.length; i++) {
-            lista.push({
-                idPagamento: rows[i]['idPagamento'],
-                idContrato: rows[i]['idContrato'],
-                valorPagamento: rows[i]['valorPagamento'],
-                dataPagamento: rows[i]['dataPagamento'],
-                pago: rows[i]['pago'],
-                descricao: rows[i]['descricao'],
-                nomeLocatario: rows[i]['nomeLocatario']
-            });
+            let valores = [idContrato];
+            let rows = await banco.ExecutaComando(sql, valores);
+            let lista = [];
+            for (let i = 0; i < rows.length; i++) {
+                lista.push({
+                    idPagamento: rows[i]['idPagamento'],
+                    idContrato: rows[i]['idContrato'],
+                    valorPagamento: rows[i]['valorPagamento'],
+                    dataPagamento: rows[i]['dataPagamento'],
+                    pago: rows[i]['pago'],
+                    descricao: rows[i]['descricao'],
+                    nomeLocatario: rows[i]['nomeLocatario']
+                });
+            }
+            return lista;
+        } catch (e) {
+            console.error(`Erro ao obter pagamentos do contrato ${idContrato}:`, e);
+            return [];
         }
-        return lista;
     }
 
     async marcarPago(idPagamento) {
-        let sql = "UPDATE pagamentoAvulso SET pago = 'S' WHERE idPagamento = ?";
-        let valores = [idPagamento];
-        return await banco.ExecutaComandoNonQuery(sql, valores);
+        try {
+            let sql = "UPDATE pagamentoAvulso SET pago = 'S' WHERE idPagamento = ?";
+            let valores = [idPagamento];
+            return await banco.ExecutaComandoNonQuery(sql, valores);
+        } catch (e) {
+            console.error(`Erro ao marcar pagamento ${idPagamento} como pago:`, e);
+            return false;
+        }
     }
 
     async excluir(idPagamento) {
-        if (idPagamento > 0) {
-            let sql = "DELETE FROM pagamentoAvulso WHERE idPagamento = ?";
-            let valores = [idPagamento];
-            return await banco.ExecutaComandoNonQuery(sql, valores);
+        try {
+            if (idPagamento > 0) {
+                let sql = "DELETE FROM pagamentoAvulso WHERE idPagamento = ?";
+                let valores = [idPagamento];
+                return await banco.ExecutaComandoNonQuery(sql, valores);
+            }
+            return false;
+        } catch (e) {
+            console.error(`Erro ao excluir pagamento ${idPagamento}:`, e);
+            return false;
         }
-        return false;
     }
 
     async gravar() {
@@ -125,7 +150,7 @@ class PagamentoAvulsoModel {
             let ok = await banco.ExecutaComandoNonQuery(sql, valores);
             return ok;
         } catch (e) {
-            console.log(e);
+            console.error("Erro ao gravar pagamentoAvulso:", e);
             return false;
         }
     }
@@ -134,20 +159,20 @@ class PagamentoAvulsoModel {
         if (!refImovel || !refImovel.toString().trim()) return [];
 
         const sql = `
-        SELECT 
-            p.idPagamento, 
-            p.valorPagamento, 
-            p.dataPagamento, 
-            p.pago, 
-            p.idContrato,
-            p.descricao
-        FROM pagamentoAvulso p 
-        JOIN contrato c ON p.idContrato = c.idContrato 
-        JOIN imovel i ON c.idImovel = i.idImovel 
-        WHERE i.refImovel LIKE CONCAT('%', ?, '%') 
-        ORDER BY p.idPagamento DESC 
-        LIMIT ? OFFSET ?;
-        `;
+    SELECT 
+        p.idPagamento, 
+        p.valorPagamento, 
+        p.dataPagamento, 
+        p.pago, 
+        p.idContrato,
+        p.descricao
+    FROM pagamentoAvulso p 
+    JOIN contrato c ON p.idContrato = c.idContrato 
+    JOIN imovel i ON c.idImovel = i.idImovel 
+    WHERE i.refImovel LIKE CONCAT('%', ?, '%') 
+    ORDER BY p.idPagamento DESC 
+    LIMIT ? OFFSET ?;
+    `;
         const valores = [refImovel, Number(limit), Number(offset)];
 
         try {
@@ -164,9 +189,10 @@ class PagamentoAvulsoModel {
             ));
         } catch (err) {
             console.error('Erro em buscaPorImovel (pagamentoAvulso):', err);
-            throw err;
+            return [];
         }
     }
+
 }
 
 module.exports = PagamentoAvulsoModel;
