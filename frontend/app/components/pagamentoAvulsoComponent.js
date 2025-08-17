@@ -8,6 +8,7 @@ export default function PagamentoAvulso({ contrato }) {
     const valorPagamento = useRef(null);
     const dataPagamento = useRef(null);
     const [listaContratos, setListaContratos] = useState([]);
+    const descricao = useRef(null);
 
     // Função para formatar valor em R$ enquanto digita
     function formatarValor(e) {
@@ -44,7 +45,8 @@ export default function PagamentoAvulso({ contrato }) {
         httpClient.post('/pagamentoAvulso/gravar', {
             valorPagamento: valorSemFormato,
             dataPagamento: dataPagamento.current.value,
-            idContrato: idContratoSelecionado
+            idContrato: idContratoSelecionado,
+            descricao: descricao.current.value
         })
             .then(r => {
                 status = r.status;
@@ -99,6 +101,11 @@ export default function PagamentoAvulso({ contrato }) {
                 <div className="form-group">
                     <label>Data</label>
                     <input ref={dataPagamento} type="date" className="form-control" />
+                </div>
+
+                <div className="form-group">
+                    <label>Descrição</label>
+                    <input ref={descricao} type="text" className="form-control" />
                 </div>
 
                 <div className="form-group">

@@ -5,10 +5,7 @@ class PagamentoAvulsoController {
     async listar(req, res) {
         let pagamentoAvulso = new PagamentoAvulsoModel();
         let lista = await pagamentoAvulso.listar();
-        let listaRetorno = [];
-        for (let i = 0; i < lista.length; i++) {
-            listaRetorno.push(lista[i].toJSON());
-        }
+        let listaRetorno = lista.map(p => p.toJSON());
         res.status(200).json(listaRetorno);
     }
 
@@ -17,9 +14,9 @@ class PagamentoAvulsoController {
             let pagamentoAvulso = new PagamentoAvulsoModel();
             pagamentoAvulso = await pagamentoAvulso.obter(req.params.idPagamentoAvulso);
             if (pagamentoAvulso != null) {
-                res.status(200).json(pagamentoAvulso);
+                res.status(200).json(pagamentoAvulso.toJSON());
             } else {
-                res.status(500).json({ message: "Erro ao obter pagamentoAvulso." });
+                res.status(404).json({ message: "Pagamento avulso não encontrado." });
             }
         } else {
             res.status(400).json({ message: "Parâmetros inválidos." });
@@ -29,12 +26,8 @@ class PagamentoAvulsoController {
     async obterPorContrato(req, res) {
         if (req.params.idContrato > 0) {
             let pagamentoAvulso = new PagamentoAvulsoModel();
-            pagamentoAvulso = await pagamentoAvulso.obterPorContrato(req.params.idContrato);
-            if (pagamentoAvulso != null) {
-                res.status(200).json(pagamentoAvulso);
-            } else {
-                res.status(500).json({ message: "Erro ao obter pagamentoAvulso." });
-            }
+            let lista = await pagamentoAvulso.obterPorContrato(req.params.idContrato);
+            res.status(200).json(lista); // já retorna objetos com descricao
         } else {
             res.status(400).json({ message: "Parâmetros inválidos." });
         }
@@ -42,61 +35,62 @@ class PagamentoAvulsoController {
 
     async gravar(req, res) {
         if (Object.keys(req.body).length > 0) {
-            let pagamentoAvulso = new PagamentoAvulsoModel();
+            let pagamentoAvulso = new PagamentoAvulsoModel(
+                0,
+                req.body.valorPagamento,
+                req.body.dataPagamento,
+                req.body.pago,
+                req.body.idContrato,
+                req.body.descricao // novo campo
+            );
 
-            pagamentoAvulso.idPagamento = 0;
-            pagamentoAvulso.valorPagamento = req.body.valorPagamento;
-            pagamentoAvulso.dataPagamento = req.body.dataPagamento;
-            pagamentoAvulso.pago = req.body.pago;
-            pagamentoAvulso.idContrato = req.body.idContrato;
             let ok = await pagamentoAvulso.gravar();
-            if(ok){
-                res.status(200).json({ msg: "PagamentoAvulso gravado com sucesso." });
-            }else{
-                res.status(500).json({ msg: "Erro ao gravar pagamentoAvulso." });
+            if (ok) {
+                res.status(200).json({ msg: "Pagamento avulso gravado com sucesso." });
+            } else {
+                res.status(500).json({ msg: "Erro ao gravar pagamento avulso." });
             }
-        }else{
+        } else {
             res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
-    async marcarPago(req,res){
-        if(req.body.idPagamento > 0){
+    async marcarPago(req, res) {
+        if (req.body.idPagamento > 0) {
             let pagamentoAvulso = new PagamentoAvulsoModel();
             let ok = await pagamentoAvulso.marcarPago(req.body.idPagamento);
-            if(ok){
-                res.status(200).json({ msg: "PagamentoAvulso quitado com sucesso." });
-            }else{
+            if (ok) {
+                res.status(200).json({ msg: "Pagamento avulso quitado com sucesso." });
+            } else {
                 res.status(500).json({ msg: "Erro ao marcar quitado." });
             }
-        }else{
+        } else {
             res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
-    async excluir(req,res){
-        if(req.params.idPagamentoAvulso > 0){
+    async excluir(req, res) {
+        if (req.params.idPagamentoAvulso > 0) {
             let pagamentoAvulso = new PagamentoAvulsoModel();
             let ok = await pagamentoAvulso.excluir(req.params.idPagamentoAvulso);
-            if(ok){
-                res.status(200).json({ msg: "PagamentoAvulso excluido com sucesso." });
-            }else{
-                res.status(500).json({ msg: "Erro ao excluir pagamentoAvulso." });
+            if (ok) {
+                res.status(200).json({ msg: "Pagamento avulso excluído com sucesso." });
+            } else {
+                res.status(500).json({ msg: "Erro ao excluir pagamento avulso." });
             }
-        }else{
+        } else {
             res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 
-    async buscarPorImovel(req,res){
-        if(req.params.refImovel.length > 0){
+    async buscarPorImovel(req, res) {
+        if (req.params.refImovel.length > 0) {
             let pagamentoAvulso = new PagamentoAvulsoModel();
             let lista = await pagamentoAvulso.buscaPorImovel(req.params.refImovel);
-            let listaRetorno = [];
-            for (let i = 0; i < lista.length; i++) {
-                listaRetorno.push(lista[i].toJSON());
-            }
+            let listaRetorno = lista.map(p => p.toJSON());
             res.status(200).json(listaRetorno);
+        } else {
+            res.status(400).json({ msg: "Parâmetros inválidos." });
         }
     }
 

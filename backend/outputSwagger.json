@@ -1092,6 +1092,9 @@
           "idContrato": {
             "type": "number",
             "example": 1
+          },
+          "descricao": {
+            "type": "undefined"
           }
         }
       }
