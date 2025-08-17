@@ -147,12 +147,15 @@ export default function Contratos() {
                             <th>Locador</th>
                             <th>Quantidade de Parcelas</th>
                             <th>Valor das Parcelas</th>
+                            <th>Multa (%)</th>
+                            <th>Juros (% ao dia)</th>
                             <th>Vencimento</th>
                             <th>Inicio contrato</th>
                             <th>Fim contrato</th>
                             <th>Alterar</th>
                             <th>Pag.Avulso</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
@@ -166,6 +169,8 @@ export default function Contratos() {
                                         <td>{buscarLocador(value.idLocador)}</td>
                                         <td>{value.qtdParcelas}</td>
                                         <td>R${value.valorParcela}</td>
+                                        <td>%{value.multa}</td>
+                                        <td>%{value.juros}</td>
                                         <td>Dia: {formatarDataVencimento(value.dataVencimento)}</td>
                                         <td>{new Date(value.inicioVigenciaContrato).toLocaleDateString()}</td>
                                         <td>{new Date(value.fimVigenciaContrato).toLocaleDateString()}</td>

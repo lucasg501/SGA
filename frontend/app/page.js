@@ -10,6 +10,8 @@ export default function Home() {
   const [dadosPix, setDadosPix] = useState(null);
   const [listaTiposPix, setListaTiposPix] = useState([]);
   const [listaPagAvulso, setListaPagAvulso] = useState([]);
+  const [listaContrato, setListaContrato] = useState([]);
+  const [contratoSelecionado, setContratoSelecionado] = useState(null);
 
   // ----------- Funções para pagamentos avulsos -----------
   function listarPagAvulso(idContrato) {
@@ -29,6 +31,35 @@ export default function Home() {
   }, [listaParcelas]);
 
   // ----------- Funções gerais -----------
+  function listarContrato(idContrato) {
+    let status = 0;
+
+    httpClient.get(`/contratos/obter/${idContrato}`)
+      .then(r => {
+        status = r.status;
+        return r.json();
+      })
+      .then(r => {
+        if (status === 200) {
+          // Converte multa e juros para número
+          const contrato = {
+            ...r,
+            multa: parseFloat(r.multa) || 0,
+            juros: parseFloat(r.juros) || 0
+          };
+          setListaContrato([contrato]);       // manter como lista caso precise
+          setContratoSelecionado(contrato);   // contrato individual
+        } else {
+          alert(r.msg);
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao buscar contrato:', err);
+        alert('Erro ao acessar backend.');
+      });
+  }
+
+
   function formatarCPF(valor) {
     return valor
       .replace(/\D/g, "")
@@ -75,14 +106,16 @@ export default function Home() {
         if (!data || data.length === 0) {
           alert('Nenhuma parcela encontrada.');
           setListaParcelas([]);
-        } else setListaParcelas(data);
+        } else {
+          setListaParcelas(data);
+          listarContrato(data[0].idContrato);
+        }
       } else alert('Erro ao listar parcelas.');
     } catch {
       alert('Erro ao acessar backend.');
     }
   }
 
-  // Função para abrir modal de QR Code
   async function abrirQrModal(parcela, avulso = false) {
     try {
       const url = avulso ? `/pix/payload/avulso/${parcela.idPagamento}` : `/pix/payload/${parcela.idAluguel}`;
@@ -112,18 +145,19 @@ export default function Home() {
       .toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
-  function calcularValorComMulta(valorOriginal, dataVencimento) {
+  function calcularValorComMulta(valorOriginal, dataVencimento, multaPercent, jurosPercentDia) {
     const hoje = new Date();
     const venc = new Date(dataVencimento);
     if (hoje <= venc) return parseFloat(valorOriginal);
 
     const diffTime = hoje - venc;
     const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const multaDiaria = 0.02 / 30;
-    const multa = valorOriginal * multaDiaria * diffDias;
-    const juros = valorOriginal * 0.01 * diffDias;
+
+    const multa = valorOriginal * multaPercent;
+    const juros = valorOriginal * jurosPercentDia * diffDias;
     return parseFloat(valorOriginal) + multa + juros;
   }
+
 
   const copiar = async (texto) => {
     try {
@@ -183,6 +217,8 @@ export default function Home() {
 
       {/* Tabelas centralizadas */}
       {listaPagAvulso.length > 0 && (
+        <div style={{ width: '95%', margin: '0 auto', marginBottom: 20, textAlign: 'center' }}>
+          <h3>Pagamentos Avulsos</h3>
         <div style={{
           width: "95%",
           margin: "20px auto",
@@ -199,6 +235,7 @@ export default function Home() {
                 <th>ID</th>
                 <th>Valor</th>
                 <th>Data</th>
+                <th>Descrição</th>
                 <th>Status</th>
                 <th>PIX</th>
               </tr>
@@ -211,6 +248,7 @@ export default function Home() {
                     <td>{pagamento.idPagamento}</td>
                     <td>R$ {parseFloat(pagamento.valorPagamento).toFixed(2)}</td>
                     <td>{new Date(pagamento.dataPagamento).toLocaleDateString('pt-BR')}</td>
+                    <td>{pagamento.descricao}</td>
                     <td style={{ color: pendente ? 'red' : 'green', fontWeight: 'bold' }}>
                       {pendente ? 'Aberto' : 'Pago'}
                     </td>
@@ -225,45 +263,53 @@ export default function Home() {
             </tbody>
           </table>
         </div>
+        </div>
       )}
 
       {listaParcelas.length > 0 && (
-        <div style={{ width: '95%', display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-          <table className="table table-striped" style={{ width: '100%', border: "1px solid #ccc", borderRadius: 10, padding: 10 }}>
-            <thead>
-              <tr>
-                <th>Parcela</th>
-                <th>Vencimento</th>
-                <th>Valor</th>
-                <th>Status</th>
-                <th>PIX</th>
-              </tr>
-            </thead>
-            <tbody>
-              {listaParcelas.map((value, index) => {
-                const venc = new Date(value.dataVencimento);
-                const hoje = new Date();
-                const atrasada = (hoje > venc) && (value.quitada === 'N' || value.quitada === 'n');
-                const valorComJuros = atrasada ? calcularValorComMulta(parseFloat(value.valorAluguel), value.dataVencimento) : parseFloat(value.valorAluguel);
+        <div style={{ width: '95%', margin: '0 auto', marginBottom: 20 }}>
+          <h3 style={{ textAlign: 'center', marginBottom: 10 }}>Aluguéis</h3>
+          <div style={{ width: '95%', display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+            <table className="table table-striped" style={{ width: '100%', border: "1px solid #ccc", borderRadius: 10, padding: 10 }}>
+              <thead>
+                <tr>
+                  <th>Parcela</th>
+                  <th>Vencimento</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>PIX</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaParcelas.map((value, index) => {
+                  const venc = new Date(value.dataVencimento);
+                  const hoje = new Date();
+                  const atrasada = (hoje > venc) && (value.quitada === 'N' || value.quitada === 'n');
+                  const multaPercent = contratoSelecionado?.multa ?? 0.02;
+                  const jurosPercentDia = contratoSelecionado?.juros ?? 0.01;
+                  const valorComJuros = atrasada
+                    ? calcularValorComMulta(parseFloat(value.valorAluguel), value.dataVencimento, multaPercent, jurosPercentDia)
+                    : parseFloat(value.valorAluguel);
 
-                return (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td style={{ color: atrasada ? 'red' : 'inherit', fontWeight: atrasada ? 'bold' : 'normal' }}>
-                      {formatarData(value.dataVencimento)} {atrasada && <span style={{ marginLeft: 10, fontWeight: 'bold' }}>(Atrasada)</span>}
-                    </td>
-                    <td>R$ {valorComJuros.toFixed(2)}</td>
-                    <td>{value.quitada === "N" || value.quitada === 'n' ? "Aberta" : "Quitada"}</td>
-                    <td>
-                      <button className="btn btn-primary" disabled={existeAvulsoAberto || value.quitada === "S" || value.quitada === "s"} onClick={() => abrirQrModal({ ...value, index })}>
-                        {value.quitada === "S" || value.quitada === "s" ? "Fatura Quitada" : "Gerar QR Code"}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td style={{ color: atrasada ? 'red' : 'inherit', fontWeight: atrasada ? 'bold' : 'normal' }}>
+                        {formatarData(value.dataVencimento)} {atrasada && <span style={{ marginLeft: 10, fontWeight: 'bold' }}>(Atrasada)</span>}
+                      </td>
+                      <td>R$ {valorComJuros.toFixed(2)}</td>
+                      <td>{value.quitada === "N" || value.quitada === 'n' ? "Aberta" : "Quitada"}</td>
+                      <td>
+                        <button className="btn btn-primary" disabled={existeAvulsoAberto || value.quitada === "S" || value.quitada === "s"} onClick={() => abrirQrModal({ ...value, index })}>
+                          {value.quitada === "S" || value.quitada === "s" ? "Fatura Quitada" : "Gerar QR Code"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -309,7 +355,12 @@ export default function Home() {
                 <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>
                   R$ {parcelaQRAtiva.valorPagamento
                     ? parseFloat(parcelaQRAtiva.valorPagamento).toFixed(2)
-                    : calcularValorComMulta(parseFloat(parcelaQRAtiva.valorAluguel), parcelaQRAtiva.dataVencimento).toFixed(2)}
+                    : calcularValorComMulta(
+                      parseFloat(parcelaQRAtiva.valorAluguel),
+                      parcelaQRAtiva.dataVencimento,
+                      contratoSelecionado?.multa ?? 0.02,
+                      contratoSelecionado?.juros ?? 0.01
+                    ).toFixed(2)}
                 </div>
               </div>
               <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
@@ -319,24 +370,21 @@ export default function Home() {
             </div>
 
             {/* Dados do recebedor */}
-            {
-              dadosPix && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 12 }}>
-                  <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                    <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Recebedor</div>
-                    <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.nomePix}</div>
-                  </div>
-                  <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-                    <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Chave Pix</div>
-                    <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.chavePix}</div>
-                  </div>
+            {dadosPix && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, marginBottom: 12 }}>
+                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Recebedor</div>
+                  <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.nomePix}</div>
                 </div>
-              )
-            }
+                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Chave Pix</div>
+                  <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{dadosPix.chavePix}</div>
+                </div>
+              </div>
+            )}
 
             {/* QR Code e Copia e Cola */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-              {/* QR */}
               <div style={{
                 background: '#fff',
                 border: '1px solid #e5e7eb',
@@ -359,7 +407,6 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Copia e Cola */}
               <div style={{ flex: 1, minWidth: 300 }}>
                 <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
                   <div style={{ fontWeight: 700, color: '#111827', marginBottom: 8 }}>Pix Copia e Cola</div>

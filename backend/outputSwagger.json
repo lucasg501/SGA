@@ -963,6 +963,12 @@
           },
           "fimVigenciaContrato": {
             "type": "undefined"
+          },
+          "multa": {
+            "type": "undefined"
+          },
+          "juros": {
+            "type": "undefined"
           }
         }
       },

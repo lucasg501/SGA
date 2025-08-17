@@ -173,16 +173,7 @@ export default function AdminLayout({ children }) {
 
       <button
         onClick={() => setGraficoAberto(!graficoAberto)}
-        style={{
-          marginBottom: '10px',
-          padding: '6px 12px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
+        style={{marginBottom: '10px',padding: '6px 12px',backgroundColor: '#007bff',color: 'white',border: 'none',borderRadius: '4px',cursor: 'pointer'}}>
         {graficoAberto ? 'Minimizar Gráfico' : 'Mostrar Gráfico'}
       </button>
 
@@ -214,30 +205,14 @@ export default function AdminLayout({ children }) {
             {alugueisDoMes.map((value, index) => (
               <tr key={index}>
                 <td>{procurarRefImovel(value.idContrato) ?? 'Carregando...'}</td>
-                <td
-                  style={{
-                    color: value.quitada.toLowerCase() === 's'
-                      ? 'green'
-                      : new Date(value.dataVencimento) < hoje
-                        ? 'red'
-                        : 'inherit',
-                    fontWeight: value.quitada.toLowerCase() === 's' ? 'bold' : 'normal'
-                  }}
-                >
+                <td style={{color: value.quitada.toLowerCase() === 's' ? 'green': new Date(value.dataVencimento) < hoje ? 'red' : 'inherit', fontWeight: value.quitada.toLowerCase() === 's' ? 'bold' : 'normal'}}>
                   {formatarData(value.dataVencimento)}
-                  {value.quitada.toLowerCase() === 's'
-                    ? ' - Quitada'
-                    : new Date(value.dataVencimento) < hoje
-                      ? ' - Vencida'
-                      : ''}
+                  {value.quitada.toLowerCase() === 's' ? ' - Quitada' : new Date(value.dataVencimento) < hoje ? ' - Vencida' : ''}
                 </td>
                 <td>{value.quitada.toLowerCase() === 'n' ? 'Não' : 'Sim'}</td>
                 <td>
                   {value.quitada.toLowerCase() === 'n' ? (
-                    <button
-                      onClick={() => quitarFatura(value.idAluguel)}
-                      className="btn btn-success"
-                    >
+                    <button onClick={() => quitarFatura(value.idAluguel)} className="btn btn-success">
                       <i className="fas fa-check"></i>
                     </button>
                   ) : (

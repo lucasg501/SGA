@@ -50,6 +50,7 @@ export default function Alugueis() {
     const procurarNomeLocador = id => listaLocador.find(l => l.idLocador == id)?.nomeLocador ?? 'Locador não encontrado';
     const procurarNomeLocatario = id => listaLocatario.find(l => l.idLocatario == id)?.nomeLocatario ?? 'Locatário não encontrado';
     const formatarData = d => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
     const buscarRefComprovante = aluguel => {
         const idImovel = aluguel.idImovel ?? acharIdImovelPorContrato(aluguel.idContrato);
         const ref = acharRefImovel(idImovel);
@@ -93,8 +94,9 @@ export default function Alugueis() {
     // ---------------------- AGRUPAMENTO ----------------------
     const alugueisArray = Array.isArray(listaAlugueis) ? listaAlugueis : [];
     const alugueisPorContrato = alugueisArray.reduce((acc, aluguel) => {
-        if (!acc[aluguel.idContrato]) acc[aluguel.idContrato] = [];
-        acc[aluguel.idContrato].push(aluguel);
+        const id = Number(aluguel.idContrato); // garante chave numérica
+        if (!acc[id]) acc[id] = [];
+        acc[id].push(aluguel);
         return acc;
     }, {});
 
@@ -121,7 +123,6 @@ export default function Alugueis() {
             </div>
 
             <div style={{ marginTop: '20px' }}>
-
                 {filtroRef && alugueisArray.length > 0 && (
                     <h1>Listando resultados para o imóvel: {filtroRef}</h1>
                 )}
@@ -129,13 +130,17 @@ export default function Alugueis() {
                     <h3 className="text-muted">Não há aluguéis para exibir.</h3>
                 ) : (
                     <>
-                        {/* Exibe select apenas se não estiver filtrando por referência */}
                         {!filtroRef && (
                             <div className="form-group">
                                 <label>Selecione um contrato:</label>
-                                <select className="form-control" onChange={e => setContratoSelecionado(e.target.value)} value={contratoSelecionado || ''}>
+                                <select
+                                    className="form-control"
+                                    onChange={e => setContratoSelecionado(Number(e.target.value))}
+                                    value={contratoSelecionado || ''}
+                                >
+                                    <option >Selecione um contrato</option>
                                     {Object.keys(alugueisPorContrato).map(idContrato => {
-                                        const idImovel = acharIdImovelPorContrato(idContrato);
+                                        const idImovel = acharIdImovelPorContrato(Number(idContrato));
                                         return (
                                             <option key={idContrato} value={idContrato}>
                                                 Contrato #{idContrato} Imóvel: {idImovel ? acharRefImovel(idImovel) : 'Imóvel não encontrado'}
@@ -152,7 +157,6 @@ export default function Alugueis() {
                             </div>
                         )}
 
-                        {/* Tabela de aluguéis */}
                         {(filtroRef ? alugueisArray : (contratoSelecionado ? alugueisPorContrato[contratoSelecionado] : []))?.length > 0 && (
                             <table className="table table-bordered mt-3">
                                 <thead>
